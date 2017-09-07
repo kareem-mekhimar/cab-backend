@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>driver</title>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+</head>
+
+<body>
+    <h2>Driver</h2>
+    <div id="googleMap" style="width:100%;height:400px;"></div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        function init() {
+            var currentMarker = null;
+
+            var mapProp = {
+                zoom: 15,
+            };
+
+            var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+            navigator.geolocation.getCurrentPosition(position => {
+                let pos = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                };
+
+                map.setCenter({ lat: pos.latitude, lng: pos.longitude });
+
+                socket.emit("identity", {
+                    name: "Driver",
+                    location: {
+                        latitude: pos.latitude,
+                        longitude: pos.longitude
+                    }
+                });
+
+                socket.on("request",(data) => {
+                    console.log("Ihave A request ") ;
+                    console.log(data) ;
+                })
+
+            }, error => {
+                console.log(error);
+            });
+
+
+            google.maps.event.addListener(map, 'click', function (event) {
+                var pos = event.latLng;
+
+                placeMarker(pos);
+
+                socket.emit("locationUpdate", {
+                    location: {
+                        latitude: pos.lat(),
+                        longitude: pos.lng()
+                    }
+                });
+            });
+
+            function placeMarker(location) {
+                if (currentMarker)
+                    currentMarker.setMap(null);
+
+                currentMarker = new google.maps.Marker({
+                    position: location,
+                    map: map
+                });
+
+
+            }
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw&callback=init"></script>
+</body>
+
+</html>
