@@ -9,9 +9,14 @@
 <body>
     <h2>Driver</h2>
     <div id="googleMap" style="width:100%;height:400px;"></div>
+    <button id="arrive">Arrive</button>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
+
+        var inRequest = false;
+        var requestData;
+        var lastPosition;
 
         function init() {
             var currentMarker = null;
@@ -28,19 +33,34 @@
                 };
 
                 map.setCenter({ lat: pos.latitude, lng: pos.longitude });
-
+                
                 socket.emit("identity", {
                     name: "Driver",
+                    id: "sadasddsad",
+                    phone: "538654654",
                     location: {
                         latitude: pos.latitude,
                         longitude: pos.longitude
                     }
                 });
 
-                socket.on("request",(data) => {
-                    console.log("Ihave A request ") ;
-                    console.log(data) ;
-                })
+                socket.on("request", (data) => {
+                    requestData = data;
+                    console.log(data);
+                    var toBeSentData = {
+                        car: {
+                            model: "Honda",
+                            plateNo: "12213",
+                            color: "black"
+                        },
+                        location: lastPosition,
+                        requestLocation: requestData.requestLocation,
+                        passengerPhone: requestData.phone
+                    }
+                    socket.emit("driver:accept", toBeSentData);
+                    console.log("I have Arequest");
+                    inRequest = true;
+                });
 
             }, error => {
                 console.log(error);
@@ -52,12 +72,26 @@
 
                 placeMarker(pos);
 
-                socket.emit("locationUpdate", {
-                    location: {
-                        latitude: pos.lat(),
-                        longitude: pos.lng()
-                    }
-                });
+                lastPosition = {
+                    latitude: pos.lat(),
+                    longitude: pos.lng()
+                };
+
+                if (inRequest) {
+                    socket.emit("tripDriver:locationUpdate", {
+                        location: lastPosition,
+                        requestLocation: requestData.requestLocation
+                    });
+                }
+                else {
+                    socket.emit("freeDriver:locationUpdate", {
+                        location: lastPosition
+                    });
+                }
+            });
+
+            $("#arrive").click(function () {
+                socket.emit("arrive") ;
             });
 
             function placeMarker(location) {

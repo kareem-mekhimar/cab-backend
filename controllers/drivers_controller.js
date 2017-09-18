@@ -1,7 +1,7 @@
 const Driver = require("../models/driver");
 const redisClient = require("../redis");
 const userController = require("./user_controller");
-var rp = require('request-promise');
+const getEta  = require("../utils/utils").getEta;
 var path = require("path");
 var multer = require("multer");
 
@@ -154,7 +154,7 @@ module.exports = {
         var lat = req.query.lat;
         var lng = req.query.lng;
         console.log(lat + ",," + lng);
-        redisClient.georadius("drivers", lng, lat, '4', "km", "WITHCOORD", "COUNT", "12", "ASC", function (err, result) {
+        redisClient.georadius("drivers-free", lng, lat, '4', "km", "WITHCOORD", "COUNT", "12", "ASC", function (err, result) {
 
             if (result.length === 0) {
                 res.send({ msg: "No Drivers Near You" });
@@ -180,24 +180,19 @@ module.exports = {
                 uri: 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + nearestLocation.latitude + "," + nearestLocation.longitude + "&destinations=" + lat + "," + lng + "&departure_time=now" + "&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw",
                 json: true
             };
+             
+            var destination = {
+                latitude:lat,
+                longitude:lng
+            } ;
 
-            rp(options)
-                .then(function (result) {
-                    var data = result.rows[0].elements[0];
-                    var distance = data.distance;
-                    var duration = data.duration.text;
-
-                    res.send({
-                        drivers: driversLocations,
-                        nearTime: duration.substring(0, duration.indexOf(" min"))
-                    });
-                    console.log(data);
-                    return result
-                })  
-                .catch(function (err) {
-                    console.log(err);
-                    return err;
+            getEta(nearestLocation,destination).then(result => {
+                res.send({
+                    drivers: driversLocations,
+                    nearTime: result
                 });
+            })
+
         });
 
 
