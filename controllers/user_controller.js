@@ -1,7 +1,7 @@
 const expressValidator = require('express-validator');
 const User = require("../models/user");
 const generatePassword = require('password-generator');
-const generateToken = require("../utils/utils").generateToken;
+const { generateToken } = require("../utils");
 
 var twilio = require('twilio');
 

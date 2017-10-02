@@ -1,7 +1,7 @@
 const Driver = require("../models/driver");
 const redisClient = require("../redis");
 const userController = require("./user_controller");
-const getEta  = require("../utils/utils").getEta;
+const getEta  = require("../utils").getEta;
 var path = require("path");
 var multer = require("multer");
 

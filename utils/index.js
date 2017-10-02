@@ -1,7 +1,7 @@
 
 var jwt = require('jsonwebtoken');
 var rp = require('request-promise');
-
+var geolib = require("geolib") ;
 
 module.exports = {
     generateToken(data) {
@@ -54,5 +54,27 @@ module.exports = {
             }).catch(err => {
                 console.log(err);
             });
+    },
+    getDistanceBetween(from,to){
+        return geolib.getDistance(from,to);
+    },
+    getRealDistanceBetweenInMeters(origin,destination){
+        var options = {
+            method: 'GET',
+            uri: 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + origin.latitude + "," + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&departure_time=now" + "&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw",
+            json: true
+        };
+
+        return rp(options)
+            .then(function (result) {
+                var data = result.rows[0].elements[0];
+                var distance = data.distance.value;
+                console.log(distance);
+                return distance;
+            })
+            .catch(function (err) {
+                console.log(err);
+                return err;
+            });      
     }
 };
