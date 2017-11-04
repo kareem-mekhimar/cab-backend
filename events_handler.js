@@ -3,7 +3,7 @@ const redisClient = require("./redis");
 const rp = require('request-promise');
 const moment = require("moment");
 const generatePassword = require('password-generator');
-const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters } = require("./utils");
+const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters,calculateFare } = require("./utils");
 
 module.exports = (io) => {
 
@@ -36,6 +36,11 @@ module.exports = (io) => {
                 redisClient.zrem("drivers-free", phone);
                 io.sockets.in(phone).emit("request", data);
             });
+        });
+
+    
+        socket.on("passenger:dropoff",data => {
+            socket.broadcast.to(socket.room).emit("passenger:dropoff",data) ;
         });
 
         socket.on("driver:accept", data => {
@@ -143,13 +148,17 @@ module.exports = (io) => {
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
         });
+//30.614521520503214,,32.27135282009841 
+
+// 30.618337137789208,,32.26964324712753 ring road
+// 30.6128555,,32.2719795 ma7akeem
 // 30.593265977428462,32.27863870561122
         socket.on("driver:startTrip", () => {
             redisClient.set("startTime:" + socket.room, JSON.stringify(new Date()));
             socket.inTrip = true;
             let key = "km:" + socket.room;
             redisClient.set(key, 0);
-            socket.broadcast.to(socket.room).emit("driver:startTrip");
+            io.sockets.in(socket.room).emit("driver:startTrip");
         });
 
         socket.on("driver:endTrip", () => {
@@ -191,23 +200,7 @@ module.exports = (io) => {
 
                             //////////// FARE
 
-                            let timeFare = (tripMin - 3) * 0.25;
-
-                            let kmFactor = 1.7;
-
-                            if (tripKm > 50)
-                                kmFactor = 2.7; // Big Factor 
-
-                            let kmFare = 5;
-
-                            if (tripKm > 4) {
-                                kmFare += (tripKm - 4) * kmFactor;
-                            }
-
-                            let totalFare = kmFare + timeFare;
-
-                            if (totalFare < 9)
-                                totalFare = 9;
+                            let totalFare = calculateFare(tripMin,tripKm);
 
                             console.log("Fare = " + totalFare);
 
@@ -222,9 +215,9 @@ module.exports = (io) => {
                     redisClient.del("tripCode:" + socket.room);
 
                     socket.inTrip = false;
-                    socket.leave(socket.room);
-                    socket.room = socket.phone;
-                    socket.join(socket.room);
+                    // socket.leave(socket.room);
+                    // socket.room = socket.phone;
+                    // socket.join(socket.room);
                 });
             });
 

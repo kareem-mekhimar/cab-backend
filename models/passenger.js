@@ -39,6 +39,10 @@ const PassengerSchema = mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    wallet:{
+        type: Number,
+        default:0
+    }
 });
 
 

@@ -1,6 +1,8 @@
 const Passenger = require("../models/passenger");
-const userController = require("./user_controller") ;
+const userController = require("./user_controller");
 const generatePassword = require('password-generator');
+
+const { calculateFare, getRealDistanceBetweenInMeters, getTimeInSecondsBetween, getRealDistanceAndTime } = require("../utils");
 
 module.exports = {
 
@@ -13,7 +15,7 @@ module.exports = {
         var page = pageParam && pageParam > 0 ? pageParam : 1;
 
         Passenger.find({})
-            .sort({ joinDate : -1 })
+            .sort({ joinDate: -1 })
             .limit(limit)
             .skip((page - 1) * limit).then(data => {
                 Passenger.count().then(count => {
@@ -28,27 +30,27 @@ module.exports = {
             });
     },
 
-   
+
     create(req, res) {
         const passengerBody = req.body;
-        
+
         const newPassenger = {
-           fullName : passengerBody.fullName,
-           gender : passengerBody.gender,
-           phone : passengerBody.phone
-        } ;
-        
-        var email = passengerBody.email ;
-        if(email)
-            newPassenger.email = email ;
+            fullName: passengerBody.fullName,
+            gender: passengerBody.gender,
+            phone: passengerBody.phone
+        };
+
+        var email = passengerBody.email;
+        if (email)
+            newPassenger.email = email;
 
         res.contentType("application/json");
 
         Passenger.create(newPassenger).then(passenger => {
-            
-            return userController.createNewPassengerUser(passenger,passengerBody.password).then(user => {
-                res.status(201).send(user) ;
-            }) ;
+
+            return userController.createNewPassengerUser(passenger, passengerBody.password).then(user => {
+                res.status(201).send(user);
+            });
 
         }).catch(model => {
             console.log(model);
@@ -83,59 +85,82 @@ module.exports = {
             res.status(404).end();
         });
     },
-        
-    isPhoneExists(req,res) {
-       const phoneParam = req.query.phone ;
-       if(! phoneParam)
-          res.status(400).send({error:'Phone is Required'});
-       else{
-          
-        Passenger.findOne({ phone : phoneParam }).then(passenger => {
-           if(passenger)
-              res.status(200).send({ exists : true });
-           else
-              res.status(200).send({ exists : false }); 
-        }).catch(err => {
-            res.status(500).send(err) ;
-        });
-       }
+
+    isPhoneExists(req, res) {
+        const phoneParam = req.query.phone;
+        if (!phoneParam)
+            res.status(400).send({ error: 'Phone is Required' });
+        else {
+
+            Passenger.findOne({ phone: phoneParam }).then(passenger => {
+                if (passenger)
+                    res.status(200).send({ exists: true });
+                else
+                    res.status(200).send({ exists: false });
+            }).catch(err => {
+                res.status(500).send(err);
+            });
+        }
     },
-       
-    isEmailExists(req,res) {
-       const emailParam = req.query.email ;
-       if(! emailParam)
-          res.status(400).send({error:'Email is Required'});
-       else{
-          
-        Passenger.findOne({ email : emailParam }).then(passenger => {
-           if(driver)
-              res.status(200).send({ exists : true });
-           else
-              res.status(200).send({ exists : false }); 
-        }).catch(err => {
-            res.status(500).send(err) ;
-        });
-       }
+
+    isEmailExists(req, res) {
+        const emailParam = req.query.email;
+        if (!emailParam)
+            res.status(400).send({ error: 'Email is Required' });
+        else {
+
+            Passenger.findOne({ email: emailParam }).then(passenger => {
+                if (driver)
+                    res.status(200).send({ exists: true });
+                else
+                    res.status(200).send({ exists: false });
+            }).catch(err => {
+                res.status(500).send(err);
+            });
+        }
     },
-    sendCode(req,res){
+    sendCode(req, res) {
         return userController.generatePassengerCode(req.params.id).then(() => {
             console.log("hererre");
             res.status(200).end();
         });
     }
     ,
-    verify(req,res){
-       var id = req.params.id ;
-       var code = req.body.code ;
-       
-       userController.verifyPassengerUser(id,code).then(result => {
-           if(result){
-              res.status(200).end() ;
-           }else{
-               res.status(400).send({ error : "Invalid Code" }) ;
-           }
-       }).catch(error => console.log(error));
+    verify(req, res) {
+        var id = req.params.id;
+        var code = req.body.code;
+
+        userController.verifyPassengerUser(id, code).then(result => {
+            if (result) {
+                res.status(200).end();
+            } else {
+                res.status(400).send({ error: "Invalid Code" });
+            }
+        }).catch(error => console.log(error));
     },
-    
-    
+    calculateDistanceAndFare(req, res) {
+
+        var origin = req.body.origin;
+        var destination = req.body.destination;
+
+        getRealDistanceAndTime(origin, destination).then(r => {
+
+            let distance = parseFloat(r[0]) / 1000;;
+            let timeMin = r[1] / 60;
+
+
+            console.log(distance) ;
+            console.log(timeMin) ;
+            
+            let fare = calculateFare(timeMin, distance);
+
+            res.send({
+                fare: fare,
+                distance: distance
+            });
+        });
+
+
+    }
+
 }

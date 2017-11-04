@@ -61,7 +61,6 @@
 
                 socket.on("request", (data) => {
                     requestData = data;
-                    console.log(data);
                     var toBeSentData = {
                         car: {
                             model: "Honda",
@@ -114,7 +113,7 @@
                 placeMarker(pos);
 
                 lastPosition = {
-                    latitude: pos.lat(),
+                    latitude: pos.lat(), 
                     longitude: pos.lng()
                 };
 

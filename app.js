@@ -17,9 +17,10 @@ const userController = require("./controllers/user_controller");
 const driverRoutes = require("./routes/driver_routes");
 const passengerRoutes = require("./routes/passenger_routes");
 const carTypesRoute = require("./routes/car_types_routes");
+const placesRoute = require("./routes/places.routes");
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/taxi');
+mongoose.connect('mongodb://admin:admin@ds119302.mlab.com:19302/cab');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -78,6 +79,7 @@ userRoutes(router);
 passengerRoutes(router);
 driverRoutes(router);
 carTypesRoute(router);
+placesRoute(router);
 
 app.use("/api", router);
 

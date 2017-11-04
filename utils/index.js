@@ -1,7 +1,7 @@
 
 var jwt = require('jsonwebtoken');
 var rp = require('request-promise');
-var geolib = require("geolib") ;
+var geolib = require("geolib");
 
 module.exports = {
     generateToken(data) {
@@ -38,7 +38,7 @@ module.exports = {
 
         var options = {
             method: 'GET',
-            uri: 'https://maps.googleapis.com/maps/api/directions/json?origin='+originStr+'&destination='+destinationStr+'&mode=driving&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw',
+            uri: 'https://maps.googleapis.com/maps/api/directions/json?origin=' + originStr + '&destination=' + destinationStr + '&mode=driving&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw',
             json: true
         };
 
@@ -46,7 +46,7 @@ module.exports = {
 
         return rp(options)
             .then(function (result) {
-              //  console.log(result);
+                //  console.log(result);
                 if (result.routes.length) {
                     var coords = decode(result.routes[0].overview_polyline.points);
                     return coords;
@@ -55,10 +55,10 @@ module.exports = {
                 console.log(err);
             });
     },
-    getDistanceBetween(from,to){
-        return geolib.getDistance(from,to);
+    getDistanceBetween(from, to) {
+        return geolib.getDistance(from, to);
     },
-    getRealDistanceBetweenInMeters(origin,destination){
+    getRealDistanceBetweenInMeters(origin, destination) {
         var options = {
             method: 'GET',
             uri: 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + origin.latitude + "," + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&departure_time=now" + "&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw",
@@ -75,6 +75,62 @@ module.exports = {
             .catch(function (err) {
                 console.log(err);
                 return err;
-            });      
+            });
+    },
+    getTimeInSecondsBetween(origin, destination) {
+        var options = {
+            method: 'GET',
+            uri: 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + origin.latitude + "," + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&departure_time=now" + "&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw",
+            json: true
+        };
+
+        return rp(options)
+            .then(function (result) {
+                var data = result.rows[0].elements[0];
+                return data.duration.value;
+            })
+            .catch(function (err) {
+                console.log(err);
+                return err;
+            });
+    },
+    getRealDistanceAndTime(origin, destination) {
+        var options = {
+            method: 'GET',
+            uri: 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + origin.latitude + "," + origin.longitude + "&destinations=" + destination.latitude + "," + destination.longitude + "&departure_time=now" + "&key=AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw",
+            json: true
+        };
+
+        return rp(options)
+               .then(function (result) {
+                var data = result.rows[0].elements[0];
+                return [data.distance.value,data.duration.value] ;
+               })
+               .catch(function (err) {
+                   console.log(err);
+                   return err;
+               });
+    },
+    calculateFare(tripMin, tripKm) {
+
+        let timeFare = (tripMin - 3) * 0.25;
+
+        let kmFactor = 1.7;
+
+        if (tripKm > 50)
+            kmFactor = 2.7; // Big Factor 
+
+        let kmFare = 5;
+
+        if (tripKm > 4) {
+            kmFare += (tripKm - 4) * kmFactor;
+        }
+
+        let totalFare = kmFare + timeFare;
+
+        if (totalFare < 9)
+            totalFare = 9;
+
+        return totalFare;
     }
 };
