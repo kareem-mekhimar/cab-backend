@@ -112,7 +112,7 @@ module.exports = {
                });
     },
     calculateFare(tripMin, tripKm) {
-
+  
         let timeFare = (tripMin - 3) * 0.25;
 
         let kmFactor = 1.7;
