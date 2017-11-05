@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const CarType = require("./car_type");
 
 const CarSchema = mongoose.Schema({
-    carType:{
+    carType:{   
          type:Schema.Types.ObjectId,
          ref:'cartype',
          required:[true,"Specify A valid Car Type"]
