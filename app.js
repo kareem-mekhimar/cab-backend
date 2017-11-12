@@ -64,9 +64,13 @@ app.use(function (err, req, res, next) {
 
 app.use('/imgs', express.static(path.join(__dirname,'imgs')));
 
+app.get("/admin",(req,res) => {
+    res.sendfile(path.join(__dirname,"/dist/index.html"))
+})
 app.get("/drivers",(req,res) => {
    res.sendFile(path.join(__dirname,"/index.html"));
 });
+
 
 app.use(expressValidator());
 
