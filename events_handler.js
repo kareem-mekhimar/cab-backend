@@ -3,7 +3,7 @@ const redisClient = require("./redis");
 const rp = require('request-promise');
 const moment = require("moment");
 const generatePassword = require('password-generator');
-const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters,calculateFare } = require("./utils");
+const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters, calculateFare } = require("./utils");
 
 module.exports = (io) => {
 
@@ -38,9 +38,9 @@ module.exports = (io) => {
             });
         });
 
-    
-        socket.on("passenger:dropoff",data => {
-            socket.broadcast.to(socket.room).emit("passenger:dropoff",data) ;
+
+        socket.on("passenger:dropoff", data => {
+            socket.broadcast.to(socket.room).emit("passenger:dropoff", data);
         });
 
         socket.on("driver:accept", data => {
@@ -148,11 +148,11 @@ module.exports = (io) => {
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
         });
-//30.614521520503214,,32.27135282009841 
+        //30.614521520503214,,32.27135282009841 
 
-// 30.618337137789208,,32.26964324712753 ring road
-// 30.6128555,,32.2719795 ma7akeem
-// 30.593265977428462,32.27863870561122
+        // 30.618337137789208,,32.26964324712753 ring road
+        // 30.6128555,,32.2719795 ma7akeem
+        // 30.593265977428462,32.27863870561122
         socket.on("driver:startTrip", () => {
             redisClient.set("startTime:" + socket.room, JSON.stringify(new Date()));
             socket.inTrip = true;
@@ -164,6 +164,8 @@ module.exports = (io) => {
         socket.on("driver:endTrip", () => {
 
             let nowMoment = moment(new Date());
+
+            console.log(nowMoment);
 
             let arriveTimeKey = "arriveTime:" + socket.room;
 
@@ -200,7 +202,7 @@ module.exports = (io) => {
 
                             //////////// FARE
 
-                            let totalFare = calculateFare(tripMin,tripKm);
+                            let totalFare = calculateFare(tripMin, tripKm);
 
                             console.log("Fare = " + totalFare);
 
@@ -208,22 +210,42 @@ module.exports = (io) => {
                         });
                     }
 
-                    redisClient.del(arriveTimeKey);
-                    redisClient.del(startTimeKey);
-                    redisClient.del(distanceKey);
-                    redisClient.del("driver-lastLocation:" + socket.phone);
-                    redisClient.del("tripCode:" + socket.room);
+                    // redisClient.del(arriveTimeKey);
+                    // redisClient.del(startTimeKey);
+                    // redisClient.del(distanceKey);
+                    // redisClient.del("driver-lastLocation:" + socket.phone);
+                    // redisClient.del("tripCode:" + socket.room);
 
-                    socket.inTrip = false;
-                    // socket.leave(socket.room);
-                    // socket.room = socket.phone;
-                    // socket.join(socket.room);
+                    // socket.inTrip = false;
+                    // // socket.leave(socket.room);
+                    // // socket.room = socket.phone;
+                    // // socket.join(socket.room);
                 });
             });
 
 
 
         });
+
+
+        socket.on("driver:fareOk", data => {
+
+            let arriveTimeKey = "arriveTime:" + socket.room;
+            let startTimeKey = "startTime:" + socket.room;
+            let distanceKey = "km:" + socket.room;
+
+            redisClient.del(arriveTimeKey);
+            redisClient.del(startTimeKey);
+            redisClient.del(distanceKey);
+            redisClient.del("driver-lastLocation:" + socket.phone);
+            redisClient.del("tripCode:" + socket.room);
+
+            socket.inTrip = false;
+            socket.leave(socket.room);
+            socket.room = socket.phone;
+            socket.join(socket.room);
+        });
+
 
         socket.on("disconnect", () => {
             console.log("Disconnection---");

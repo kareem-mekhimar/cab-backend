@@ -21,6 +21,8 @@ const placesRoute = require("./routes/places.routes");
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://admin:admin@ds119302.mlab.com:19302/cab');
+//mongoose.connect('mongodb://localhost/taxi') ;
+
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
