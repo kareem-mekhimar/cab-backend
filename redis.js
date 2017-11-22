@@ -6,6 +6,10 @@ var redisClient = redis.createClient({
     port: 14290
 });
 
+// var redisClient = redis.createClient({
+//     host: "localhost",
+//     port: 6379
+// });
 
 redisClient.on('error', function (error) {
     console.log(error);

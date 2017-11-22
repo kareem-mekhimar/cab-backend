@@ -164,6 +164,7 @@ module.exports = {
             var nearestLocation = null;
             var driversLocations = [];
 
+            console.log(result) ;
             result.map((r, index) => {
                 var id = r[0][0]
                 var longitude = r[1][0];

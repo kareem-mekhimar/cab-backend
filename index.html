@@ -26,8 +26,32 @@
     <button id="start" class="btn btn-warning">Start trip</button>
     <button id="end" class="btn btn-success">End trip</button>
     <button id="fareOk" class="btn btn-success">Fare Ok</button>
+
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">New Request</h4>
+                </div>
+                <div class="modal-body">
+                    <p id="modalBody"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="accept" class="btn btn-default" data-dismiss="modal">Accept</button>
+                    <button type="button" id="reject" class="btn btn-default" data-dismiss="modal">Reject</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
+
         $("#arrive,#start,#end,#fareOk").hide();
         var socket = io();
 
@@ -54,10 +78,13 @@
 
                 map.setCenter({ lat: pos.latitude, lng: pos.longitude });
 
+                var phone = Math.floor(Math.random() * 4000) + 100 ;
+
+                console.log(phone);
                 socket.emit("identity", {
                     name: "Driver",
-                    id: "sadasddsad",
-                    phone: "538654654",
+                    id: phone+":id",
+                    phone: phone,
                     location: {
                         latitude: pos.latitude,
                         longitude: pos.longitude
@@ -66,19 +93,7 @@
 
                 socket.on("request", (data) => {
                     requestData = data;
-                    var toBeSentData = {
-                        car: {
-                            model: "Honda",
-                            plateNo: "12213",
-                            color: "black"
-                        },
-                        location: lastPosition,
-                        requestLocation: requestData.requestLocation,
-                        passengerPhone: requestData.phone
-                    }
-                    socket.emit("driver:accept", toBeSentData);
-                    console.log("I have Arequest");
-                    inRequest = true;
+                    $('#myModal').modal('show');
                 });
 
             }, error => {
@@ -94,6 +109,34 @@
                 }
             });
 
+            $("#accept").click(() => {
+
+                var toBeSentData = {
+                    car: {
+                        model: "Honda",
+                        plateNo: "12213",
+                        color: "black"
+                    },
+                    location: lastPosition,
+                    requestLocation: requestData.requestLocation,
+                    passengerPhone: requestData.phone
+                }
+                socket.emit("driver:accept", toBeSentData);
+                console.log("I have Arequest");
+                inRequest = true;
+            })
+
+
+            $("#reject").click(() => {
+                console.log("Request Data");
+                console.log(requestData) ;
+                socket.emit("driver:cancel",  requestData);
+                requestData = null;
+                socket.emit("freeDriver:locationUpdate", {
+                    location: lastPosition
+                });
+            })
+ 
             $("#arrive").click(function () {
                 socket.emit("arrive", { location: lastPosition });
                 arrived = true;

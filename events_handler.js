@@ -1,4 +1,6 @@
 
+
+
 const redisClient = require("./redis");
 const rp = require('request-promise');
 const moment = require("moment");
@@ -24,17 +26,18 @@ module.exports = (io) => {
             redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, socket.phone);
         });
 
-
         socket.on("passenger:request", (data) => {
             socket.phone = data.phone;
             socket.room = data.phone;
             socket.join(socket.room);
 
-            redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "1", "ASC", function (err, result) {
+            redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
+                console.log(result);
                 var phone = result[0][0];
                 console.log("Founding " + phone);
                 redisClient.zrem("drivers-free", phone);
                 io.sockets.in(phone).emit("request", data);
+
             });
         });
 
@@ -82,8 +85,6 @@ module.exports = (io) => {
 
         });
 
-        socket.on("driver:reject", data => {
-        });
 
         socket.on("tripDriver:locationUpdate", data => {
 
@@ -240,12 +241,28 @@ module.exports = (io) => {
             redisClient.del("driver-lastLocation:" + socket.phone);
             redisClient.del("tripCode:" + socket.room);
 
+            let requestKey = "request:" + socket.room;
+
+            if (redisClient.exists(requestKey))
+                redisClient.del(requestKey); //SET of all Requested driver phones
+
             socket.inTrip = false;
             socket.leave(socket.room);
             socket.room = socket.phone;
             socket.join(socket.room);
         });
 
+
+        socket.on("driver:cancel", data => {
+            let requestKey = "request:" + data.phone;
+            redisClient.sadd(requestKey, socket.phone);
+
+            redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
+                console.log("Georaduis")
+                console.log(data) ;
+                isMemberAndSend(result, 0, requestKey, data);
+            });
+        })
 
         socket.on("disconnect", () => {
             console.log("Disconnection---");
@@ -263,4 +280,30 @@ module.exports = (io) => {
         });
 
     })
+
+
+
+    function isMemberAndSend(result, i, requestKey, data) {
+        if (i == result.length) {
+            io.sockets.in(data.phone).emit("nodrivers");
+            redisClient.del(requestKey) ;
+            return;
+        }
+
+
+        let phone = result[i][0];
+        console.log("Is Memeber Phone = " + phone);
+        redisClient.sismember(requestKey, phone, (error, myResult) => {
+            console.log("IsMENEMMM ber errror");
+            console.log(error);
+            console.log("Is Memeber result = " + myResult);
+            if (!myResult) { // && phone != socket.phone Not Member and Not Me
+                redisClient.zrem("drivers-free", phone);
+                io.sockets.in(phone).emit("request", data);
+            }
+            else
+                isMemberAndSend(result, i + 1, requestKey, data);
+        });
+
+    }
 } 
