@@ -15,10 +15,14 @@ module.exports = (io) => {
             let phone = data.phone;
             socket.room = phone;
             socket.phone = phone;
-            socket.type = "driver";
+            socket.type = data.type;
             socket.join(phone);
-            redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
-            redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
+
+            if(socket.type == "driver"){
+                redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
+                redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
+            }
+         
         });
 
         socket.on("freeDriver:locationUpdate", function (data) {
@@ -27,9 +31,9 @@ module.exports = (io) => {
         });
 
         socket.on("passenger:request", (data) => {
-            socket.phone = data.phone;
-            socket.room = data.phone;
-            socket.join(socket.room);
+            // socket.phone = data.phone;
+            // socket.room = data.phone;
+            // socket.join(socket.room);
 
             redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
                 console.log(result);
@@ -294,9 +298,6 @@ module.exports = (io) => {
         let phone = result[i][0];
         console.log("Is Memeber Phone = " + phone);
         redisClient.sismember(requestKey, phone, (error, myResult) => {
-            console.log("IsMENEMMM ber errror");
-            console.log(error);
-            console.log("Is Memeber result = " + myResult);
             if (!myResult) { // && phone != socket.phone Not Member and Not Me
                 redisClient.zrem("drivers-free", phone);
                 io.sockets.in(phone).emit("request", data);
