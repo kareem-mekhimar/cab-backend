@@ -18,11 +18,14 @@ module.exports = (io) => {
             socket.type = data.type;
             socket.join(phone);
 
-            if(socket.type == "driver"){
+            if (socket.type == "driver") {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
                 redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
-         
+            else {
+
+            }
+
         });
 
         socket.on("freeDriver:locationUpdate", function (data) {
@@ -34,6 +37,7 @@ module.exports = (io) => {
             // socket.phone = data.phone;
             // socket.room = data.phone;
             // socket.join(socket.room);
+
 
             redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
                 console.log(result);
@@ -148,7 +152,7 @@ module.exports = (io) => {
             let lastLocationKey = "driver-lastLocation:" + socket.phone;
             redisClient.set(lastLocationKey, JSON.stringify(data.location));
 
-            let code = generatePassword(4, false, /\d/);
+            let code = generatePassword(2, false, /\d/);
             redisClient.set("tripCode:" + socket.room, code);
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
@@ -211,7 +215,7 @@ module.exports = (io) => {
 
                             console.log("Fare = " + totalFare);
 
-                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: tripKm, time: tripMin });
+                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: Math.round(tripKm), time: Math.round(tripMin) });
                         });
                     }
 
@@ -263,10 +267,18 @@ module.exports = (io) => {
 
             redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
                 console.log("Georaduis")
-                console.log(data) ;
+                console.log(data);
                 isMemberAndSend(result, 0, requestKey, data);
             });
         })
+
+        socket.on("driver:active", data => {
+            redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, socket.phone);
+        })
+
+        socket.on("driver:busy", () => {
+            redisClient.zrem("drivers-free", socket.phone);
+        });
 
         socket.on("disconnect", () => {
             console.log("Disconnection---");
@@ -283,6 +295,7 @@ module.exports = (io) => {
                 socket.leave(socket.room);
         });
 
+
     })
 
 
@@ -290,7 +303,7 @@ module.exports = (io) => {
     function isMemberAndSend(result, i, requestKey, data) {
         if (i == result.length) {
             io.sockets.in(data.phone).emit("nodrivers");
-            redisClient.del(requestKey) ;
+            redisClient.del(requestKey);
             return;
         }
 
