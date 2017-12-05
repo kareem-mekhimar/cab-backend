@@ -153,6 +153,7 @@ module.exports = (io) => {
             redisClient.set(lastLocationKey, JSON.stringify(data.location));
 
             let code = generatePassword(2, false, /\d/);
+            console.log(code)
             redisClient.set("tripCode:" + socket.room, code);
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
