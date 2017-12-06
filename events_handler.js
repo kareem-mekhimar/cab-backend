@@ -287,13 +287,11 @@ module.exports = (io) => {
             if (socket.type === "driver") {
                 redisClient.del(socket.phone);
                 redisClient.zrem("drivers-free", socket.phone);
-                let tripLocationKey = "driver-lastLocation:" + socket.phone;
-                if (redisClient.exists(tripLocationKey)) {
-                    redisClient.del(tripLocationKey);
-                }
+                // let tripLocationKey = "driver-lastLocation:" + socket.phone;
+                // if (redisClient.exists(tripLocationKey)) {
+                //     redisClient.del(tripLocationKey);
+                // }
             }
-            if (socket.room)
-                socket.leave(socket.room);
         });
 
 
