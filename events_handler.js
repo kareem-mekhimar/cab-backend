@@ -16,7 +16,11 @@ module.exports = (io) => {
             socket.room = phone;
             socket.phone = phone;
             socket.type = data.type;
+            socket.inTrip = data.inTrip ;
             socket.join(phone);
+
+            console.log("Identity")
+            console.log(data) ;
 
             if (socket.type == "driver") {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
@@ -55,6 +59,10 @@ module.exports = (io) => {
         });
 
         socket.on("driver:accept", data => {
+
+            console.log("accept") ;
+
+            console.log(data) ;
 
             socket.leave(socket.room);
             socket.room = data.passengerPhone;
@@ -283,7 +291,7 @@ module.exports = (io) => {
 
         socket.on("disconnect", () => {
             console.log("Disconnection---");
-            console.log(socket);
+            console.log(socket.type);
             if (socket.type === "driver") {
                 redisClient.del(socket.phone);
                 redisClient.zrem("drivers-free", socket.phone);
