@@ -16,15 +16,16 @@ module.exports = (io) => {
             socket.room = phone;
             socket.phone = phone;
             socket.type = data.type;
-            socket.inTrip = data.inTrip ;
+            socket.inTrip = data.inTrip;
             socket.join(phone);
 
             console.log("Identity")
-            console.log(data) ;
+            console.log(data);
 
             if (socket.type == "driver") {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
-                redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
+                if (!socket.inTrip)
+                    redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
 
@@ -60,9 +61,9 @@ module.exports = (io) => {
 
         socket.on("driver:accept", data => {
 
-            console.log("accept") ;
+            console.log("accept");
 
-            console.log(data) ;
+            console.log(data);
 
             socket.leave(socket.room);
             socket.room = data.passengerPhone;
@@ -158,14 +159,14 @@ module.exports = (io) => {
         socket.on("arrive", data => {
 
             console.log("arrive");
-            console.log(data) ;
+            console.log(data);
 
             redisClient.set("arriveTime:" + socket.room, JSON.stringify(new Date()));
             let lastLocationKey = "driver-lastLocation:" + socket.phone;
             redisClient.set(lastLocationKey, JSON.stringify(data.location));
 
             let code = generatePassword(2, false, /\d/);
-       
+
             redisClient.set("tripCode:" + socket.room, code);
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
