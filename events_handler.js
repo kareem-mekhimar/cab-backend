@@ -185,10 +185,8 @@ module.exports = (io) => {
         });
 
         socket.on("driver:endTrip", () => {
-
+     
             let nowMoment = moment(new Date());
-
-            console.log(nowMoment);
 
             let arriveTimeKey = "arriveTime:" + socket.room;
 
