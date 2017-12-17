@@ -39,9 +39,9 @@ module.exports = (io) => {
         });
 
         socket.on("passenger:request", (data) => {
-            // socket.phone = data.phone;
-            // socket.room = data.phone;
-            // socket.join(socket.room);
+            socket.phone = data.phone;
+            socket.room = data.phone;
+            socket.join(socket.room);
 
 
             redisClient.georadius("drivers-free", data.requestLocation.longitude, data.requestLocation.latitude, '4', "km", "WITHCOORD", "COUNT", "20", "ASC", function (err, result) {
