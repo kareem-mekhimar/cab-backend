@@ -119,7 +119,7 @@ module.exports = (io) => {
                                 let prevDistance = parseFloat(result);
                                 let newDistance = parseFloat(distance);
 
-                                if (Math.abs(newDistance - prevDistance) < 100) //meter
+                                if (Math.abs(newDistance - prevDistance) < 60) //meter
                                     return;
 
                                 let allDistance = prevDistance + newDistance;
