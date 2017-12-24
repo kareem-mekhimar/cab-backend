@@ -5,13 +5,6 @@ const url = require("url") ;
 
 class ApiResponse {
 
-    data;
-    page;
-    pageCount;
-    totalCount;
-    limit;
-    links ={};
-
     constructor(data, page, pageCount, limit,totalCount) {
         this.data = data;
         this.page = page;
