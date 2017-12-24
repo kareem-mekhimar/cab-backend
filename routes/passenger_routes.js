@@ -63,7 +63,7 @@ module.exports = (router) => {
  *                                            "carType": "59fdfc0657adab00129770c8",
  *                                            "_id": "5a15b30662df230014fd649b"
  *                                          },
- *                                        ]
+ *                                        ],
  *                                "gender": "MALE"
  *                              },
  *                              "fare": 9,
