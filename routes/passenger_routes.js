@@ -113,7 +113,7 @@ module.exports = (router) => {
  */
 
         
-        router.route("/passengers/:id/trips").post(TripController.findByPassenger)
+        router.route("/passengers/:id/trips").get(TripController.findByPassenger)
         
 
         
