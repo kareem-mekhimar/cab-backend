@@ -37,79 +37,59 @@ module.exports = (router) => {
  *       200:
  *         description: Get a page of trips for this passenger
  *         example: 
- *               {
- *                   "links": {
- *                       "self": "http://localhost:3000/api/v1/auctions?page=6&limit=2",
- *                       "first": "http://localhost:3000/api/v1/auctions?page=1&limit=2",
- *                       "prev": "http://localhost:3000/api/v1/auctions?page=5&limit=2",
- *                       "next": "http://localhost:3000/api/v1/auctions?page=7&limit=2",
- *                       "last": "http://localhost:3000/api/v1/auctions?page=7&limit=2"
- *                   },
- *                   "data": [
- *                       {
- *                           "title": "oppo",
- *                           "description": "good device",
- *                           "startPrice": 100000,
- *                           "relatedCategory": {
- *                               "name": "مجديات",
- *                               "id": "5a2443970b92ff001421a3b9"
- *                           },
- *                           "relatedUser": {
- *                               "email": "hazem.tarek@gmail.com",
- *                               "fullName": "Hazem Tarek",
- *                               "phone": "01014466503",
- *                               "country": "مصر",
- *                               "address": "بورسعيد",
- *                               "img": "http://kayed-api.herokuapp.com/uploads/5a24117b4bc62c0014489e43.png",
- *                               "id": "5a24117b4bc62c0014489e43"
- *                           },
- *                           "endDate": "2017-12-31T00:00:00.000Z",
- *                           "highestPrice": 1300025,
- *                           "creationDate": "2017-12-03T19:27:58.447Z",
- *                           "finished": false,
- *                           "imgs": [
- *                               "http://kayed-api.herokuapp.com/uploads/auctions/5a24503e7585730014f103c61512329278453.jpeg"
- *                           ],
- *                           "id": "5a24503e7585730014f103c6",
- *                           "inMyOffers": true,
- *                           "inMyFavourites": false
- *                       },
- *                       {
- *                           "title": "opel astra",
- *                           "description": "good car",
- *                           "startPrice": 1000,
- *                           "relatedCategory": {
- *                               "name": "سيارات",
- *                               "id": "5a2442fb4311cd0014c1bfb9"
- *                           },
- *                           "relatedUser": {
- *                               "email": "hazem.tarek@gmail.com",
- *                               "fullName": "Hazem Tarek",
- *                               "phone": "01014466503",
- *                               "country": "مصر",
- *                               "address": "بورسعيد",
- *                               "img": "http://kayed-api.herokuapp.com/uploads/5a24117b4bc62c0014489e43.png",
- *                               "id": "5a24117b4bc62c0014489e43"
- *                           },
- *                           "endDate": "2017-12-24T00:00:00.000Z",
- *                           "highestPrice": 10000000000002,
- *                           "creationDate": "2017-12-04T16:14:53.719Z",
- *                           "finished": false,
- *                           "imgs": [
- *                               "http://kayed-api.herokuapp.com/uploads/auctions/5a25747dcda9950014db1bc11512404093721.jpeg",
- *                               "http://kayed-api.herokuapp.com/uploads/auctions/5a25747dcda9950014db1bc11512404093722.jpeg",
- *                               "http://kayed-api.herokuapp.com/uploads/auctions/5a25747dcda9950014db1bc11512404093722.jpeg"
- *                           ],
- *                           "id": "5a25747dcda9950014db1bc1",
- *                           "inMyOffers": true,
- *                           "inMyFavourites": false
- *                       }
- *                   ],
- *                   "page": 6,
- *                   "pageCount": 7,
- *                   "limit": "2",
- *                   "totalCount": 14
- *               }
+ *           {
+ *                 "data": [
+ *                           {
+ *                             "_id": "5a3f77582e1ead4d295068e7",
+ *                            "passenger": "5a00b71c9935ac0012484883",
+ *                            "driver": {
+ *                                "_id": "59fdfdd757adab00129770ca",
+ *                                "firstName": "Ayman",
+ *                                "lastName": "Ayman",
+ *                                "address": "Address",
+ *                                "email": "demo@demo.com",
+ *                                "phone": "01289415321",
+ *                                "pin": "12323123",
+ *                                "licenceNo": "2132323123",
+ *                                "__v": 0,
+ *                                "licenceExpireDate": null,
+ *                                "remarks": "",
+ *                                "img": "59fdfdd757adab00129770ca",
+ *                                "cars": [
+ *                                          {
+ *                                            "color": "gray",
+ *                                            "luxury": null,
+ *                                            "plateNo": "1231",
+ *                                            "carType": "59fdfc0657adab00129770c8",
+ *                                            "_id": "5a15b30662df230014fd649b"
+ *                                          },
+ *                                        ]
+ *                                "gender": "MALE"
+ *                              },
+ *                              "fare": 9,
+ *                              "km": 0,
+ *                              "min": 0,
+ *                              "arriveDate": "2017-12-24T09:45:50.202Z",
+ *                              "startDate": "2017-12-24T09:45:57.176Z",
+ *                              "endDate": "2017-12-24T09:46:00.143Z",
+ *                              "requestLocation": [
+ *                                   32.2709978,
+ *                                   30.610617
+ *                                ], 
+ *                              "dropOffLocation": [
+ *                                    32.270880682065915,
+ *                                    30.611211334389232
+ *                                 ],
+ *                             }
+ *                          ],
+ *                     "page": 1,
+ *                     "pageCount": 1,
+ *                     "limit": "20",
+ *                     "totalCount": 1,
+ *                     "links": {
+ *                           "self": "http://74.207.254.193:3000/api/passengers/5a00b71c9935ac0012484883/trips?page=1&limit=20"
+ *                      }
+ *              }
  */
 
         
