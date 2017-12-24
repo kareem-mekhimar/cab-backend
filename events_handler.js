@@ -6,7 +6,7 @@ const rp = require('request-promise');
 const Trip = require("./models/trip") ;
 const moment = require("moment");
 const generatePassword = require('password-generator');
-const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters, calculateFare } = require("./utils");
+const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters, calculateFare,getPlaceName } = require("./utils");
 
 module.exports = (io) => {
 
@@ -231,7 +231,10 @@ module.exports = (io) => {
                             let totalKm =  Math.round(tripKm) ;
                             let totalMin = Math.round(tripMin) ;
 
-                            let trip = new Trip({
+                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time:totalMin  });
+                     
+
+                            let tripData = {
                                 passenger:data.passengerId,
                                 driver:data.driverId,
                                 fare:totalFare,
@@ -242,11 +245,21 @@ module.exports = (io) => {
                                 endDate: nowMoment.toDate() ,
                                 requestLocation:data.requestLocation,
                                 dropOffLocation:data.dropOffLocation,
-                            }) ;
+                            }
 
-                            trip.save() ;
 
-                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time:totalMin  });
+                            getPlaceName(data.requestLocation[1],data.requestLocation[0]).then(requestPlaceName => {
+
+                                getPlaceName(data.dropOffLocation[1],data.dropOffLocation[0]).then(dropPlaceName => {
+                                    
+                                    tripData.requestLocationName = requestPlaceName;
+                                    tripData.dropOffLocationName = dropPlaceName ;
+                                    let trip = new Trip(tripData) ;
+
+                                    trip.save() ;
+                                }) 
+                            })
+                            
                         });
                     }
 

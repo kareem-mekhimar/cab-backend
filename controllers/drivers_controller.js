@@ -137,8 +137,9 @@ module.exports = {
                 console.log(err);
                 return res.status(400).send("an Error occured")
             }
+            let appUrl = req.protocol + '://' + req.get('host') ;
             var id = req.params.id;
-            Driver.update({ _id: id }, { img: id }).then(driver => {
+            Driver.update({ _id: id }, { img: appUrl+"/uploads/"+id }).then(driver => {
                 res.status(204).end();
             });
 

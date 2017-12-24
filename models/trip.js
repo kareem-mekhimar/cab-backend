@@ -33,9 +33,15 @@ const TripSchema = mongoose.Schema({
         type: [Number],
         index:'2d'
      },
+     requestLocationName:{
+        type:String
+     },
      dropOffLocation:{
         type: [Number],
         index:'2d'
+     },
+     dropOffLocationName:{
+         type:String
      }
 }) ;
 

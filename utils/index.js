@@ -2,6 +2,8 @@
 var jwt = require('jsonwebtoken');
 var rp = require('request-promise');
 var geolib = require("geolib");
+var querystring = require("querystring") ;
+
 
 module.exports = {
     generateToken(data) {
@@ -132,5 +134,26 @@ module.exports = {
             totalFare = 9;
 
         return totalFare;
+    },
+    getPlaceName(latitude,longitude){
+        let params = {
+            key: 'AIzaSyDe_nAWE5ccLGXPuWbcGTXzVlrtH-lMcUw',
+            latlng: latitude+","+longitude
+        };
+        let qs = querystring.stringify(params);
+
+        var options = {
+            method: 'GET',
+            uri: "https://maps.googleapis.com/maps/api/geocode/json?"+qs,
+            json: true
+        };
+
+        return rp(options)
+            .then(json => {
+                if (json.status !== 'OK') {
+                    throw new Error(json.status);
+                }
+                return json.results[0].address_components[0].short_name;
+            });
     }
 };
