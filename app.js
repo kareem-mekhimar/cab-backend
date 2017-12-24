@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 const mongoose = require("mongoose");
 const expressValidator = require('express-validator');
 var jwt = require('jsonwebtoken');
+const { swaggerSpec } = require("./services/swagger") ;
 
 
 const userRoutes = require("./routes/user_routes");
@@ -25,6 +26,12 @@ mongoose.connect('mongodb://admin:admin@ds119302.mlab.com:19302/cab');
 
 
 app.use(cors());
+
+app.get('/swagger.json', function (req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
