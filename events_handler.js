@@ -239,7 +239,7 @@ module.exports = (io) => {
                                 min:totalMin,
                                 arriveDate: arriveMoment.toDate(),
                                 startDate: startMoment.toDate() ,
-                                endDate: endMoment.toDate() ,
+                                endDate: nowMoment.toDate() ,
                                 requestLocation:data.requestLocation,
                                 dropOffLocation:data.dropOffLocation,
                             }) ;
