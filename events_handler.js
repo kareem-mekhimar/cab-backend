@@ -3,6 +3,7 @@
 
 const redisClient = require("./redis");
 const rp = require('request-promise');
+const Trip = require("./models/trip") ;
 const moment = require("moment");
 const generatePassword = require('password-generator');
 const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters, calculateFare } = require("./utils");
