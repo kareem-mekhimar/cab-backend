@@ -89,7 +89,9 @@ module.exports = (router) => {
  *                     "links": {
  *                           "self": "http://74.207.254.193:3000/api/passengers/5a00b71c9935ac0012484883/trips?page=1&limit=20"
  *                      }
- *              }
+ *              } 
+ *        404:
+ *         description: Passenger with this id not found
  */
 
         
