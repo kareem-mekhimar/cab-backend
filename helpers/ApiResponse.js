@@ -11,6 +11,7 @@ class ApiResponse {
         this.pageCount = pageCount;
         this.limit = limit;
         this.totalCount = totalCount;
+        this.links = {} ;
     }
 
     addSelfLink(req) {
