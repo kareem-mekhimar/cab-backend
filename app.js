@@ -35,12 +35,16 @@ app.get('/swagger.json', function (req, res) {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
+
 app.use('/', function (req, res, next) {
     var contype = req.headers['content-type'];
     if ( contype.indexOf('application/json') !== 0 && contype.indexOf('multipart/form-data;') !== 0)
         return res.status(415).send({ error: "Unsupported Media Type (" + contype + ")" });
     next();
 });
+
+
     
 app.use(function (err, req, res, next) {
     if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
