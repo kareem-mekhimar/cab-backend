@@ -49,6 +49,8 @@ module.exports = {
                 })
                 
             });
+        }).catch(err => {
+            res.status(404).send({ success:false , error: "Passenger not found" }) ;
         })
 
     }
