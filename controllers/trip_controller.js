@@ -24,7 +24,7 @@ module.exports = {
             }
 
             let findQuery = Trip.find({ passenger: id });
-            findQuery.populate('passenger driver') ;
+            findQuery.populate('driver') ;
             let countQuery = Trip.count({ passenger: id  });
 
             findQuery.sort({ endDate: -1 })
