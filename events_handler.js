@@ -185,7 +185,7 @@ module.exports = (io) => {
             io.sockets.in(socket.room).emit("driver:startTrip");
         });
 
-        socket.on("driver:endTrip", () => {
+        socket.on("driver:endTrip", data => {
      
             let nowMoment = moment(new Date());
 
@@ -228,7 +228,25 @@ module.exports = (io) => {
 
                             console.log("Fare = " + totalFare);
 
-                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: Math.round(tripKm), time: Math.round(tripMin) });
+                            let totalKm =  Math.round(tripKm) ;
+                            let totalMin = Math.round(tripMin) ;
+
+                            let trip = new Trip({
+                                passenger:data.passengerId,
+                                driver:data.driverId,
+                                fare:totalFare,
+                                km:totalKm,
+                                min:totalMin,
+                                arriveDate: arriveMoment.toDate(),
+                                startDate: startMoment.toDate() ,
+                                endDate: endMoment.toDate() ,
+                                requestLocation:data.requestLocation,
+                                dropOffLocation:data.dropOffLocation,
+                            }) ;
+
+                            trip.save() ;
+
+                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time:totalMin  });
                         });
                     }
 

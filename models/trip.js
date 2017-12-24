@@ -17,7 +17,7 @@ const TripSchema = mongoose.Schema({
      km:{
          type:Number
      },
-     time:{
+     min:{
          type:Number
      },
      arriveDate:{
