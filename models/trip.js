@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-
+const LocationSchema = require("./location") ;
 
 const TripSchema = mongoose.Schema({
      passenger:{
@@ -42,6 +42,9 @@ const TripSchema = mongoose.Schema({
      },
      dropOffLocationName:{
          type:String
+     },
+     path:{
+         type:[LocationSchema]
      }
 }) ;
 

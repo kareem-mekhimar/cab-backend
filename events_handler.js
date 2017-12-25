@@ -62,10 +62,6 @@ module.exports = (io) => {
 
         socket.on("driver:accept", data => {
 
-            console.log("accept");
-
-            console.log(data);
-
             socket.leave(socket.room);
             socket.room = data.passengerPhone;
             socket.join(socket.room);
@@ -108,8 +104,11 @@ module.exports = (io) => {
 
             if (socket.inTrip) {
                 let lastLocationKey = "driver-lastLocation:" + socket.phone;
+
                 redisClient.get(lastLocationKey, (error, result) => {
                     let lastLocation = JSON.parse(result);
+                    let locationsListKey = "trip-locations:"+socket.phone ;
+                    redisClient.rpush(locationsListKey,result) ;
                     getRealDistanceBetweenInMeters(lastLocation, data.location)
                         .then(distance => {
                             let key = "km:" + socket.room;
@@ -159,12 +158,11 @@ module.exports = (io) => {
 
         socket.on("arrive", data => {
 
-            console.log("arrive");
-            console.log(data);
-
             redisClient.set("arriveTime:" + socket.room, JSON.stringify(new Date()));
             let lastLocationKey = "driver-lastLocation:" + socket.phone;
             redisClient.set(lastLocationKey, JSON.stringify(data.location));
+            let locationsListKey = "trip-locations:"+socket.phone ;
+            redisClient.rpush(locationsListKey,JSON.stringify(data.location)) ;
 
             let code = generatePassword(2, false, /\d/);
 
@@ -172,11 +170,7 @@ module.exports = (io) => {
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
         });
-        //30.614521520503214,,32.27135282009841 
 
-        // 30.618337137789208,,32.26964324712753 ring road
-        // 30.6128555,,32.2719795 ma7akeem
-        // 30.593265977428462,32.27863870561122
         socket.on("driver:startTrip", () => {
             redisClient.set("startTime:" + socket.room, JSON.stringify(new Date()));
             socket.inTrip = true;
@@ -188,7 +182,7 @@ module.exports = (io) => {
         socket.on("driver:endTrip", data => {
      
             let nowMoment = moment(new Date());
-
+            let tripLocationsKey = "trip-locations:"+socket.phone ;
             let arriveTimeKey = "arriveTime:" + socket.room;
 
             redisClient.get(arriveTimeKey, (error, arriveDate) => {
@@ -222,8 +216,6 @@ module.exports = (io) => {
 
                             console.log("Distance in KM = " + tripKm);
 
-                            //////////// FARE
-
                             let totalFare = calculateFare(tripMin, tripKm);
 
                             console.log("Fare = " + totalFare);
@@ -256,23 +248,26 @@ module.exports = (io) => {
                                     tripData.dropOffLocationName = dropPlaceName ;
                                     let trip = new Trip(tripData) ;
 
+                                    
                                     trip.save() ;
+
+                                    redisClient.lrange(tripLocationsKey,0,-1,(err,results) => {
+                                        if(results){
+                                            results.forEach(result => {
+                                                let loc = JSON.parse(result) ;
+                                                trip.path.push({ latitude:loc.latitude,longitude:loc.longitude }) ;
+                                            });
+
+                                            trip.save() ;
+                                        }
+                                    })
+
+
                                 }) 
                             })
                             
                         });
                     }
-
-                    // redisClient.del(arriveTimeKey);
-                    // redisClient.del(startTimeKey);
-                    // redisClient.del(distanceKey);
-                    // redisClient.del("driver-lastLocation:" + socket.phone);
-                    // redisClient.del("tripCode:" + socket.room);
-
-                    // socket.inTrip = false;
-                    // // socket.leave(socket.room);
-                    // // socket.room = socket.phone;
-                    // // socket.join(socket.room);
                 });
             });
 
@@ -283,6 +278,7 @@ module.exports = (io) => {
 
         socket.on("driver:fareOk", data => {
 
+            let tripLocationsKey = "trip-locations:"+socket.phone ;
             let arriveTimeKey = "arriveTime:" + socket.room;
             let startTimeKey = "startTime:" + socket.room;
             let distanceKey = "km:" + socket.room;
@@ -292,6 +288,7 @@ module.exports = (io) => {
             redisClient.del(distanceKey);
             redisClient.del("driver-lastLocation:" + socket.phone);
             redisClient.del("tripCode:" + socket.room);
+            redisClient.del(tripLocationsKey) ;
 
             let requestKey = "request:" + socket.room;
 
