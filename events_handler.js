@@ -322,7 +322,8 @@ module.exports = (io) => {
         });
 
         socket.on("passenger:cancel",() => {
-           socket.broadcast.to(socket.room).emit("passenger:cancel") ;
+            console.log("Passenger Cancellllll") ;
+            socket.broadcast.to(socket.room).emit("passenger:cancel") ;
         }) ;
         
         socket.on("driver:afterPassCancel",() => {
