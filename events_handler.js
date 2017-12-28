@@ -321,6 +321,16 @@ module.exports = (io) => {
             redisClient.zrem("drivers-free", socket.phone);
         });
 
+        socket.on("passenger:cancel",() => {
+           socket.broadcast.to(socket.room).emit("passenger:cancel") ;
+        }) ;
+        
+        socket.on("driver:afterPassCancel",() => {
+            socket.leave(socket.room);
+            socket.room = socket.phone;
+            socket.join(socket.room);
+        });
+
         socket.on("disconnect", () => {
             console.log("Disconnection---");
             console.log(socket.type);
