@@ -344,7 +344,7 @@ module.exports = (io) => {
         socket.on("driver:afterPassCancel", () => {
             // socket.leave(socket.room);
             // socket.room = socket.phone;
-
+   
             // console.log("Joining room "+socket.room) ;
 
             // socket.join(socket.room);
