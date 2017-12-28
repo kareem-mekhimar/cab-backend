@@ -347,7 +347,7 @@ module.exports = (io) => {
    
             console.log("Joining room "+socket.room) ;
 
-            socket.join(socket.room);
+            socket.join(socket.phone);
             
         });
 
