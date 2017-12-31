@@ -29,6 +29,7 @@ module.exports = (io) => {
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
+                console.log(data.pushId) ;
                 sendNotification(data.pushId,"HI") ;
 
             }
