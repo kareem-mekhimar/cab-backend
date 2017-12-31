@@ -28,7 +28,7 @@ module.exports = (io) => {
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
-                redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
+              //  redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
             }
 
         });
@@ -173,9 +173,9 @@ module.exports = (io) => {
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
 
-            redisClient.hgetall(socket.room, (error, result) => {
-                sendNotification(result.pushId,"Driver Arrived") ;
-            }) ;
+            // redisClient.hgetall(socket.room, (error, result) => {
+            //     sendNotification(result.pushId,"Driver Arrived") ;
+            // }) ;
         });
 
         socket.on("driver:startTrip", () => {
