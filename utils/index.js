@@ -3,7 +3,14 @@ var jwt = require('jsonwebtoken');
 var rp = require('request-promise');
 var geolib = require("geolib");
 var querystring = require("querystring") ;
+var OneSignal = require('onesignal-node'); 
 
+
+var myClient = new OneSignal.Client({
+	userAuthKey: 'N2RkZGFiYTgtNzBkYy00YjI1LTk5N2QtMjAwNzU3NjA4OWU2',
+	// note that "app" must have "appAuthKey" and "appId" keys
+	app: { appAuthKey: 'ZjFlMGVlYmEtZDJlNC00OGIxLWE5NzctNGYzYzAwNmI2ZTlk', appId: '6cca1104-986f-4707-a795-2966da6ecfce' }
+});
 
 module.exports = {
     generateToken(data) {
@@ -155,5 +162,23 @@ module.exports = {
                 }
                 return json.results[0].address_components[0].short_name;
             });
+    },
+    sendNotification(targetId){
+
+        var firstNotification = new OneSignal.Notification({
+            contents: {
+                en: "Test notification",
+            }
+        });
+        
+        firstNotification.setTargetDevices(["47f795c8-5bbf-497e-b442-881b347a5082"]);
+            
+        myClient.sendNotification(firstNotification, function (err, httpResponse,data) {
+           if (err) {
+               console.log('Something went wrong...');
+           } else {
+               console.log(data);
+           }
+        })
     }
 };

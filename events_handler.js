@@ -6,7 +6,7 @@ const rp = require('request-promise');
 const Trip = require("./models/trip");
 const moment = require("moment");
 const generatePassword = require('password-generator');
-const { getDirections, getDistanceBetween, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
+const { getDirections, getDistanceBetween,sendNotification, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
 
 module.exports = (io) => {
 
@@ -29,6 +29,7 @@ module.exports = (io) => {
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
+                sendNotification(null) ;
 
             }
 
