@@ -163,15 +163,15 @@ module.exports = {
                 return json.results[0].address_components[0].short_name;
             });
     },
-    sendNotification(targetId){
+    sendNotification(targetId,text){
 
         var firstNotification = new OneSignal.Notification({
             contents: {
-                en: "Test notification",
+                en: text,
             }
         });
         
-        firstNotification.setTargetDevices(["47f795c8-5bbf-497e-b442-881b347a5082"]);
+        firstNotification.setTargetDevices([targetId]);
             
         myClient.sendNotification(firstNotification, function (err, httpResponse,data) {
            if (err) {
