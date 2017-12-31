@@ -1,12 +1,11 @@
 
 
-
 const redisClient = require("./redis");
 const rp = require('request-promise');
 const Trip = require("./models/trip");
 const moment = require("moment");
 const generatePassword = require('password-generator');
-const { getDirections, getDistanceBetween,sendNotification, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
+const { getDirections, getDistanceBetween, sendNotification, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
 
 module.exports = (io) => {
 
@@ -29,9 +28,7 @@ module.exports = (io) => {
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
-                console.log(data.pushId) ;
-                sendNotification(data.pushId,"HI") ;
-
+                redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
             }
 
         });
@@ -175,6 +172,10 @@ module.exports = (io) => {
             redisClient.set("tripCode:" + socket.room, code);
             socket.emit("driver:tripCode", { code: code });
             socket.broadcast.to(socket.room).emit("driver:arrive", { code: code });
+
+            redisClient.hgetall(socket.room, (error, result) => {
+                sendNotification(result.pushId,"Driver Arrived") ;
+            }) ;
         });
 
         socket.on("driver:startTrip", () => {
@@ -346,8 +347,8 @@ module.exports = (io) => {
         socket.on("driver:afterPassCancel", () => {
             socket.leave(socket.room);
             socket.room = socket.phone;
-            socket.join(socket.room); 
-            
+            socket.join(socket.room);
+
         });
 
         socket.on("disconnect", () => {
