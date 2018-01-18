@@ -54,28 +54,6 @@ app.use(function (err, req, res, next) {
 });
 
 
-
-// app.use('/api',function (req, res, next) {
-//     var authHeader = req.headers['authorization'];
-//     if (authHeader && authHeader.indexOf('Bearer') !== -1) {
-//         var token = authHeader.substring("Bearer ".length);
-//         jwt.verify(token, "cab", function (err, decoded) {
-//             if (err) {
-//                 return res.status(401).send({ error: "Invalid or Expired token" });
-//             } else {
-//                 req.decodedToken = decoded;
-//                 next();
-//             }
-//         });
-//     }
-//     else {
-//         return res.status(401).send({ error: "Unauthorized" });
-//     } 
-// });
-
-//app.use('/admin',express.static(__dirname+"/dist"));
-
-
 app.use('/imgs', express.static(path.join(__dirname,'imgs')));
 
 app.get("/drivers",(req,res) => {

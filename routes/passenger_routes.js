@@ -100,5 +100,7 @@ module.exports = (router) => {
 
         
         router.route("/passengers/:id").get(PassengerController.findById),
-        router.route("/passengers/:id").put(PassengerController.update)
+        router.route("/passengers/:id").put(PassengerController.update),
+        router.route("/passengers/:id/rate").put(PassengerController.saveRate) 
+
 };

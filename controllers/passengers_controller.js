@@ -124,8 +124,7 @@ module.exports = {
             console.log("hererre");
             res.status(200).end();
         });
-    }
-    ,
+    },
     verify(req, res) {
         var id = req.params.id;
         var code = req.body.code;
@@ -161,6 +160,17 @@ module.exports = {
         });
 
 
+    },
+    saveRate(req,res,next){
+        let id = req.params.id ;
+
+        Passenger.findById(id).then(passenger => {
+            if(!passenger)
+               res.status(404).send({ error:'Passenger with id not found' }) ;
+            else{
+
+            }   
+        })
     }
 
 }

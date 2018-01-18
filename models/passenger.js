@@ -42,6 +42,10 @@ const PassengerSchema = mongoose.Schema({
     wallet:{
         type: Number,
         default:0
+    },
+    rate:{
+        type:Number,
+        default: 0
     }
 });
 

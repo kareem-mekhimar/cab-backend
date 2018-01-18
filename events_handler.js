@@ -3,6 +3,7 @@
 const redisClient = require("./redis");
 const rp = require('request-promise');
 const Trip = require("./models/trip");
+const Passenger = require("./models/passenger") ;
 const moment = require("moment");
 const generatePassword = require('password-generator');
 const { getDirections, getDistanceBetween, sendNotification, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
@@ -270,7 +271,7 @@ module.exports = (io) => {
                                     })
 
 
-                                })
+                                });
                             })
 
                         });
@@ -284,6 +285,18 @@ module.exports = (io) => {
 
 
         socket.on("driver:fareOk", data => {
+
+            let passengerId = data.passengerId ;
+
+            Passenger.findById(passengerId).then(passenger => {
+                let wallet = passenger.wallet ;
+
+                passenger.wallet = passenger.wallet + data.remain ;
+                passenger.save() ;
+
+                socket.broadcast.to(socket.room).emit("walletupdate",{ wallet:passenger.wallet });
+            })
+
 
             let tripLocationsKey = "trip-locations:" + socket.phone;
             let arriveTimeKey = "arriveTime:" + socket.room;
@@ -332,7 +345,6 @@ module.exports = (io) => {
         });
 
         socket.on("passenger:cancel", () => {
-            console.log("Passenger Cancellllll");
 
             let currentDriverInRequest = "current-driver:" + socket.phone;
             redisClient.get(currentDriverInRequest, (err, result) => {
