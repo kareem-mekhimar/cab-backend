@@ -3,7 +3,7 @@
 const redisClient = require("./redis");
 const rp = require('request-promise');
 const Trip = require("./models/trip");
-const Passenger = require("./models/passenger") ;
+const Passenger = require("./models/passenger");
 const moment = require("moment");
 const generatePassword = require('password-generator');
 const { getDirections, getDistanceBetween, sendNotification, getEta, getRealDistanceBetweenInMeters, calculateFare, getPlaceName } = require("./utils");
@@ -29,7 +29,7 @@ module.exports = (io) => {
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
             }
             else {
-              //  redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
+                //  redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
             }
 
         });
@@ -286,16 +286,19 @@ module.exports = (io) => {
 
         socket.on("driver:fareOk", data => {
 
-            let passengerId = data.passengerId ;
+            let passengerId = data.passengerId;
 
-            Passenger.findById(passengerId).then(passenger => {
-                let wallet = passenger.wallet ;
+            if (data.remain > 0) {
+                Passenger.findById(passengerId).then(passenger => {
+                    let wallet = passenger.wallet;
 
-                passenger.wallet = passenger.wallet + data.remain ;
-                passenger.save() ;
+                    passenger.wallet = passenger.wallet + data.remain;
+                    passenger.save();
 
-                socket.broadcast.to(socket.room).emit("walletupdate",{ wallet:passenger.wallet });
-            })
+                    socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
+                })
+            }
+
 
 
             let tripLocationsKey = "trip-locations:" + socket.phone;
