@@ -288,7 +288,7 @@ module.exports = (io) => {
 
             let passengerId = data.passengerId;
 
-            if (data.newWallet > 0) {
+            if (data.walletChanged) {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;
 
