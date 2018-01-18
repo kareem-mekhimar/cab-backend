@@ -288,11 +288,11 @@ module.exports = (io) => {
 
             let passengerId = data.passengerId;
 
-            if (data.remain > 0) {
+            if (data.newWallet > 0) {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;
 
-                    passenger.wallet = passenger.wallet + data.remain;
+                    passenger.wallet = data.newWallet;
                     passenger.save();
 
                     socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
