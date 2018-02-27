@@ -2,6 +2,7 @@ const Driver = require("../models/driver");
 const Trip = require("../models/trip") ;
 const redisClient = require("../redis");
 const userController = require("./user_controller");
+const { ApiResponse } = require("../helpers/ApiResponse") ;
 const getEta  = require("../utils").getEta;
 var path = require("path");
 var multer = require("multer");
