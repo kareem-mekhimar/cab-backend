@@ -298,8 +298,8 @@ module.exports = (io) => {
 
             let passengerId = data.passengerId;
 
-            console.log(data);
-
+            console.log(data) ;
+            
             if (data.walletChanged) {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;
@@ -310,6 +310,15 @@ module.exports = (io) => {
                     socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
                 })
             }
+
+            //find last trip for this driver and set on hand
+
+            let onhand = data.onhand ;
+            Trip.find({ driver: data.driverId }).sort({ endDate : -1 }).limit(1).then(trip => {
+
+                trip.onhand = onhand ;
+                trip.save() ; 
+            });
 
 
 

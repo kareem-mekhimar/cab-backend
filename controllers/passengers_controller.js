@@ -170,7 +170,7 @@ module.exports = {
             if(!passenger)
                res.status(404).send({ error:'Passenger with id not found' }) ;
             else{
-                Trip.findOne({ passenger:id }).sort({ endDate : -1 }).limit(1).then(trip => {
+                Trip.find({ passenger:id }).sort({ endDate : -1 }).limit(1).then(trip => {
 
                     trip.rate = rate ;
                     trip.save() ; 

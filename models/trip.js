@@ -53,7 +53,7 @@ const TripSchema = mongoose.Schema({
         type:Schema.Types.ObjectId,
         ref:"period"
      },
-     cash:{
+     onhand:{
         type:Number
      },
      rate:{
