@@ -318,9 +318,8 @@ module.exports = (io) => {
             let onhand = data.onhand ;
             Trip.find({ driver: data.driverId }).sort({ endDate : -1 }).limit(1).then(trip => {
 
-                console.log(trip);
-                trip.onhand = onhand ;
-                trip.save() ; 
+                trip[0].onhand = onhand ;
+                trip[0].save() ; 
             });
 
 
