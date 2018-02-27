@@ -10,8 +10,18 @@ const { getDirections, getDistanceBetween, sendNotification, getEta, getRealDist
 
 module.exports = (io) => {
 
+    function sendHeartbeat() {
+        setTimeout(sendHeartbeat, 5000);
+        io.sockets.emit('ping', { beat: 1 });
+    }
+
     io.sockets.on("connection", function (socket) {
         console.log("Connection---");
+
+        socket.on('pong', function (data) {
+            console.log("Pong received from client");
+        });
+
         socket.on("identity", function (data) {
             let phone = data.phone;
             socket.room = phone;
@@ -231,7 +241,6 @@ module.exports = (io) => {
                             let totalKm = Math.round(tripKm);
                             let totalMin = Math.round(tripMin);
 
-                            io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time: totalMin });
 
 
                             let tripData = {
@@ -245,6 +254,7 @@ module.exports = (io) => {
                                 endDate: nowMoment.toDate(),
                                 requestLocation: data.requestLocation,
                                 dropOffLocation: data.dropOffLocation,
+                                waitingTime: arriveMin
                             }
 
 
@@ -256,8 +266,9 @@ module.exports = (io) => {
                                     tripData.dropOffLocationName = dropPlaceName;
                                     let trip = new Trip(tripData);
 
-
                                     trip.save();
+
+                                    io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time: totalMin });
 
                                     redisClient.lrange(tripLocationsKey, 0, -1, (err, results) => {
                                         if (results) {
@@ -268,8 +279,7 @@ module.exports = (io) => {
 
                                             trip.save();
                                         }
-                                    })
-
+                                    });
 
                                 });
                             })
@@ -288,8 +298,8 @@ module.exports = (io) => {
 
             let passengerId = data.passengerId;
 
-            console.log(data) ;
-            
+            console.log(data);
+
             if (data.walletChanged) {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;

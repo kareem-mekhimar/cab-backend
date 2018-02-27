@@ -96,7 +96,12 @@ const DriverSchema = mongoose.Schema({
     img:{
         type:String,
         // default:"avatar.png"
-    }
+    },
+
+    currentPeriod:{
+        type:Schema.Types.ObjectId,
+        ref:"period"
+    },
 });
 
 

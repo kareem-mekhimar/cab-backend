@@ -29,6 +29,9 @@ const TripSchema = mongoose.Schema({
      endDate:{
          type:Date
      },
+     waitingTime:{
+        type:Number
+     },
      requestLocation:{
         type: [Number],
         index:'2d'
@@ -45,6 +48,17 @@ const TripSchema = mongoose.Schema({
      },
      path:{
          type:[LocationSchema]
+     },
+     period:{
+        type:Schema.Types.ObjectId,
+        ref:"period"
+     },
+     cash:{
+        type:Number
+     },
+     rate:{
+         type:Number,
+         default:0
      }
 }) ;
 

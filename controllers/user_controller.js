@@ -70,7 +70,7 @@ module.exports = {
             User.findOne({ userName: userName, userModelType: "ADMIN" }).then(user => {
 
                 if (user)
-                    res.status(409).send({ error: userName + " already exists" });
+                    res.status(400).send({ error: userName + " already exists" });
                 else {
                     User.create({ userName: userName, password: password, userModelType: "ADMIN" }).then(user => {
                         res.status(201).end();
@@ -98,7 +98,7 @@ module.exports = {
             User.findOne({ userName: req.body.userName, password: req.body.password })
                 .then(user => {
                     if (!user) {
-                        res.status(401).send({ error: 'Wrong User name / Password' });
+                        res.status(400).send({ error: 'Wrong User name / Password' });
                     }
                     else {
                         var id = user._id;
@@ -145,3 +145,4 @@ module.exports = {
         });
     }
 };
+

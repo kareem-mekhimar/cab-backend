@@ -1,4 +1,5 @@
 const Driver = require("../models/driver");
+const Trip = require("../models/trip") ;
 const redisClient = require("../redis");
 const userController = require("./user_controller");
 const getEta  = require("../utils").getEta;
@@ -198,5 +199,55 @@ module.exports = {
         });
 
 
-    }
+    },
+
+    findTrips(req, res){
+        let page = req.query.page;
+        let limit = req.query.limit;
+       
+        page = page ? parseInt(page) : 1;
+        limit = limit ? limit : 30;
+       
+        let id = req.params.id ;
+        
+        Driver.findById(id).then(driver => {
+
+            if(! driver){
+                res.status(404).send({ success:false , error: "Driver not found" }) ;
+                return ;
+            }
+
+            let findQuery = Trip.find({ driver: id });
+            findQuery.populate('driver') ;
+            let countQuery = Trip.count({ driver: id  });
+
+            findQuery.sort({ endDate: -1 })
+            .limit(parseInt(limit))
+            .skip((page - 1) * limit).then(results => {
+
+                countQuery.then(count => {
+
+                    let pageCount = Math.ceil(count / limit);
+
+                    let response = new ApiResponse(results, page, pageCount, limit, count);
+                    response.addSelfLink(req);
+
+                    if (page > 1) {
+                        response.addPrevLink(req);
+                    }
+                    if (page < pageCount) {
+                        response.addNextLink(req);
+                    }
+            
+                    res.send(response);
+                }).catch(err => console.log(err))
+                
+            }).catch(err => console.log(err) );
+        }).catch(err => {
+            res.status(404).send({ success:false , error: "Driver not found" }) ;
+        })
+    },
+    
 }
+
+

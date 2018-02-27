@@ -1,6 +1,7 @@
 const Passenger = require("../models/passenger");
 const userController = require("./user_controller");
 const generatePassword = require('password-generator');
+const Trip = require("../models/trip") ;
 
 const { calculateFare, getRealDistanceBetweenInMeters, getTimeInSecondsBetween, getRealDistanceAndTime } = require("../utils");
 
@@ -163,12 +164,17 @@ module.exports = {
     },
     saveRate(req,res,next){
         let id = req.params.id ;
+        let rate = req.body.rate;
 
         Passenger.findById(id).then(passenger => {
             if(!passenger)
                res.status(404).send({ error:'Passenger with id not found' }) ;
             else{
+                Trip.findOne({ passenger:id }).sort({ endDate : -1 }).limit(1).then(trip => {
 
+                    trip.rate = rate ;
+                    trip.save() ; 
+                });
             }   
         })
     }
