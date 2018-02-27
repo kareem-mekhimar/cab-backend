@@ -172,8 +172,8 @@ module.exports = {
             else{
                 Trip.find({ passenger:id }).sort({ endDate : -1 }).limit(1).then(trip => {
 
-                    trip.rate = rate ;
-                    trip.save() ; 
+                    trip[0].rate = rate ;
+                    trip[0].save() ; 
                 });
             }   
         })
