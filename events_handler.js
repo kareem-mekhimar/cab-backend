@@ -258,14 +258,16 @@ module.exports = (io) => {
                             }
 
 
+                            let trip = new Trip(tripData);
+                            trip.save();
+
                             getPlaceName(data.requestLocation[1], data.requestLocation[0]).then(requestPlaceName => {
 
                                 getPlaceName(data.dropOffLocation[1], data.dropOffLocation[0]).then(dropPlaceName => {
 
-                                    tripData.requestLocationName = requestPlaceName;
-                                    tripData.dropOffLocationName = dropPlaceName;
-                                    let trip = new Trip(tripData);
-
+                                    trip.requestLocationName = requestPlaceName;
+                                    trip.dropOffLocationName = dropPlaceName;
+                                    
                                     trip.save();
 
                                     io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time: totalMin });
@@ -299,7 +301,7 @@ module.exports = (io) => {
             let passengerId = data.passengerId;
 
             console.log(data) ;
-            
+
             if (data.walletChanged) {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;
@@ -316,6 +318,7 @@ module.exports = (io) => {
             let onhand = data.onhand ;
             Trip.find({ driver: data.driverId }).sort({ endDate : -1 }).limit(1).then(trip => {
 
+                console.log(trip);
                 trip.onhand = onhand ;
                 trip.save() ; 
             });
