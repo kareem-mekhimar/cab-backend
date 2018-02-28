@@ -175,6 +175,8 @@ module.exports = {
                     trip[0].rate = rate ;
                     trip[0].save() ; 
                 });
+
+                res.status(204).end() ;
             }   
         })
     }
