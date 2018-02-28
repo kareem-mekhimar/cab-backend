@@ -64,10 +64,6 @@ app.get("/drivers",(req,res) => {
 });
 
 
-let now = moment().startOf('day') ;
-console.log(now.toDate()) ;
-console.log(now.add(14, 'days').toDate()) ;
-
 
 app.use(expressValidator());
 

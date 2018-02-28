@@ -133,11 +133,12 @@ module.exports = {
 
         Driver.update({ _id: id }, { status: "HIRED" }).then(driver => {
 
-            let now = moment().startOf('day') ;
+            let nowMoment = moment().startOf('day') ;
+            let nowDate = nowMoment.toDate() ;
 
-            let endDate = now.add(14, 'days').toDate() ;
+            let endDate = nowMoment.clone().add(14, 'days').toDate() ;
             let period = new Period({ 
-               startDate: now.toDate(),
+               startDate: nowDate,
                endDate: endDate
              }) ;
 
@@ -145,7 +146,7 @@ module.exports = {
 
                 for(var i = 1 ; i <= 14 ; i++){
                     let report = new DailyReport({
-                        dayDate: now.add(i, 'days').toDate() ,
+                        dayDate: nowMoment.clone().add(i, 'days').toDate() ,
                         period: period._id,
                         driver: driver._id
                     });
