@@ -65,7 +65,7 @@ app.get("/drivers",(req,res) => {
 
 
 let now = moment().startOf('day') ;
-console.log(now) ;
+console.log(now.toDate()) ;
 console.log(new Date()) ;
 
 
