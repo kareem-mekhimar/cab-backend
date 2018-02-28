@@ -75,25 +75,22 @@ module.exports = (io) => {
                 redisClient.set(currentDriverInRequest, phone);
 
                 io.sockets.in(phone).emit("request", data);
+                Driver.findOne({ phone: phone }).then(driver => {
 
+                    let nowMoment = moment().startOf('day');
+                    DailyReport.findOne({
+                        dayDate: nowMoment.toDate(),
+                        driver: driver._id,
+                        period: driver.currentPeriod
+                    }).then(report => {
+                        report.noOfTrips += 1
+                        report.save()
+                    })
+                });
             });
 
 
-            Driver.findOne({ phone: socket.phone }).then(driver => {
 
-                console.log("Driver");
-                console.log(driver);
-                console.log(socket.phone)
-                let nowMoment = moment().startOf('day');
-                DailyReport.findOne({
-                    dayDate: nowMoment.toDate(),
-                    driver: driver._id,
-                    period: driver.currentPeriod
-                }).then(report => {
-                    report.noOfTrips += 1
-                    report.save()
-                })
-            });
         });
 
 
