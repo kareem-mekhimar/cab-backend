@@ -134,6 +134,7 @@ module.exports = {
         Driver.update({ _id: id }, { status: "HIRED" }).then(driver => {
 
             let now = moment().startOf('day') ;
+
             let endDate = now.add(14, 'days').toDate() ;
             let period = new Period({ 
                startDate: now.toDate(),

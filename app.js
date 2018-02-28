@@ -20,6 +20,9 @@ const passengerRoutes = require("./routes/passenger_routes");
 const carTypesRoute = require("./routes/car_types_routes");
 const placesRoute = require("./routes/places.routes");
 
+
+var moment = require("moment") ;
+
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://admin:admin@ds119302.mlab.com:19302/cab');
 //mongoose.connect('mongodb://localhost/taxi') ;
@@ -59,6 +62,11 @@ app.use('/imgs', express.static(path.join(__dirname,'imgs')));
 app.get("/drivers",(req,res) => {
    res.sendFile(path.join(__dirname,"/index.html"));
 });
+
+
+let now = moment().startOf('day') ;
+console.log(now) ;
+console.log(new Date()) ;
 
 
 app.use(expressValidator());
