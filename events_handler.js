@@ -78,7 +78,8 @@ module.exports = (io) => {
 
             });
 
-            Driver.findById(socket.modelId).then(driver => {
+
+            Driver.findOne({ phone: socket.phone }).then(driver => {
                 let nowMoment = moment().startOf('day');
                 DailyReport.findOne({
                     dayDate: nowMoment.toDate(),
@@ -386,7 +387,7 @@ module.exports = (io) => {
             });
 
 
-            Driver.findById(socket.modelId).then(driver => {
+            Driver.findOne({ phone: socket.phone }).then(driver => {
                 let nowMoment = moment().startOf('day');
                 DailyReport.findOne({
                     dayDate: nowMoment.toDate(),
@@ -451,7 +452,7 @@ module.exports = (io) => {
                     redisClient.del(startTimeKey) ;
 
 
-                    Driver.findById(socket.modelId).then(driver => {
+                    Driver.findOne({ phone: socket.phone }).then(driver => {
                         let nowMoment = moment().startOf('day');
                         DailyReport.findOne({
                             dayDate: nowMoment.toDate(),
