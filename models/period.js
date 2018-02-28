@@ -4,8 +4,7 @@ const Schema = mongoose.Schema;
 
 const PeriodSchema = mongoose.Schema({
     startDate: {
-        type: Date,
-        default: Date.now
+        type: Date
     },
     endDate:{
         type: Date
@@ -14,10 +13,42 @@ const PeriodSchema = mongoose.Schema({
         type:Schema.Types.ObjectId,
         ref:"driver"
     },
+
+    workingMin:{
+        type:Number,
+        default:0
+    },
+
+    walletTransfer:{
+       type:Number,
+       default: 0
+    },
+
+    noOfTrips:{
+        type:Number,
+        default:0
+    },
+    noOfCancelledTrips:{
+        type:Number,
+        default:0
+    },
+    granty:{
+        type:Number,
+        default:0
+    },
+
+    offers:{
+        type:Number,
+        default:0
+    },
+    finished:{
+        type:Boolean,
+        default:false
+    }
     
 });
 
 
-const Passenger = mongoose.model('period', PassengerSchema);
+const Period = mongoose.model('period', PeriodSchema);
 
-module.exports = Passenger;
+module.exports = Period;

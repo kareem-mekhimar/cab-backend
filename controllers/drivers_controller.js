@@ -1,4 +1,5 @@
 const Driver = require("../models/driver");
+const Period = require("../models/period") ;
 const Trip = require("../models/trip") ;
 const redisClient = require("../redis");
 const userController = require("./user_controller");
@@ -6,6 +7,9 @@ const { ApiResponse } = require("../helpers/ApiResponse") ;
 const getEta  = require("../utils").getEta;
 var path = require("path");
 var multer = require("multer");
+const moment = require("moment") ;
+const DailyReport = require("../models/daily_report") ;
+
 
 var upload = multer({
     storage: multer.diskStorage({
@@ -128,6 +132,30 @@ module.exports = {
         var password = req.body.password;
 
         Driver.update({ _id: id }, { status: "HIRED" }).then(driver => {
+
+            let now = moment().startOf('day') ;
+            let endDate = now.add(14, 'days').toDate() ;
+            let period = new Period({ 
+               startDate: now.toDate(),
+               endDate: endDate
+             }) ;
+
+             period.save().then(period => {
+
+                for(var i = 1 ; i <= 14 ; i++){
+                    let report = new DailyReport({
+                        dayDate: now.add(i, 'days').toDate().getTime() ,
+                        period: period._id,
+                        driver: driver._id
+                    });
+
+                    report.save() ;
+                }
+
+                driver.currentPeriod = period._id ;
+                driver.save() ;
+             }) ;
+
             userController.verifyDriverUser(id, password).then(user => {
                 res.status(200).end();
             });
