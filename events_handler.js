@@ -80,6 +80,10 @@ module.exports = (io) => {
 
 
             Driver.findOne({ phone: socket.phone }).then(driver => {
+
+                console.log("Driver");
+                console.log(driver);
+                console.log(socket.phone)
                 let nowMoment = moment().startOf('day');
                 DailyReport.findOne({
                     dayDate: nowMoment.toDate(),
