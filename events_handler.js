@@ -3,6 +3,9 @@
 const redisClient = require("./redis");
 const rp = require('request-promise');
 const Trip = require("./models/trip");
+const DailyReport = require("./models/daily_report");
+const Period = require("./models/period");
+const Driver = require("./models/driver");
 const Passenger = require("./models/passenger");
 const moment = require("moment");
 const generatePassword = require('password-generator');
@@ -28,19 +31,26 @@ module.exports = (io) => {
             socket.phone = phone;
             socket.type = data.type;
             socket.inTrip = data.inTrip;
+            socket.modelId = data.id;
             socket.join(phone);
 
             console.log("Identity")
             console.log(data);
 
+
+
             if (socket.type == "driver") {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
                 if (!socket.inTrip)
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
+
+
+                redisClient.set("startTime:" + socket.phone, JSON.stringify(new Date()));
             }
             else {
                 //  redisClient.hmset(phone, "type", "passenger", "name", data.name, "id", data.id, "phone", data.phone,"pushId",data.pushId);
             }
+
 
         });
 
@@ -67,6 +77,18 @@ module.exports = (io) => {
                 io.sockets.in(phone).emit("request", data);
 
             });
+
+            Driver.findById(socket.modelId).then(driver => {
+                let nowMoment = moment().startOf('day');
+                DailyReport.findOne({
+                    dayDate: nowMoment.toDate(),
+                    driver: driver._id,
+                    period: driver.currentPeriod
+                }).then(report => {
+                    report.noOfTrips += 1
+                    report.save()
+                })
+            });
         });
 
 
@@ -79,6 +101,7 @@ module.exports = (io) => {
             socket.leave(socket.room);
             socket.room = data.passengerPhone;
             socket.join(socket.room);
+
 
             redisClient.hgetall(socket.phone, (error, result) => {
                 var driverInfo = {
@@ -110,6 +133,8 @@ module.exports = (io) => {
                 });
 
             });
+
+
 
         });
 
@@ -267,7 +292,7 @@ module.exports = (io) => {
 
                                     trip.requestLocationName = requestPlaceName;
                                     trip.dropOffLocationName = dropPlaceName;
-                                    
+
                                     trip.save();
 
                                     io.sockets.in(socket.room).emit("fare", { fare: totalFare, km: totalKm, time: totalMin });
@@ -300,7 +325,7 @@ module.exports = (io) => {
 
             let passengerId = data.passengerId;
 
-           // console.log(data) ;
+            // console.log(data) ;
 
             if (data.walletChanged) {
                 Passenger.findById(passengerId).then(passenger => {
@@ -314,11 +339,11 @@ module.exports = (io) => {
             }
 
             //find last trip for this driver and set on hand
-            let onhand = data.onhand ;
-            Trip.find({ driver: data.driverId }).sort({ endDate : -1 }).limit(1).then(trip => {
+            let onhand = data.onhand;
+            Trip.find({ driver: data.driverId }).sort({ endDate: -1 }).limit(1).then(trip => {
 
-                trip[0].onhand = onhand ;
-                trip[0].save() ; 
+                trip[0].onhand = onhand;
+                trip[0].save();
             });
 
 
@@ -359,6 +384,19 @@ module.exports = (io) => {
                 console.log(data);
                 isMemberAndSend(result, 0, requestKey, data);
             });
+
+
+            Driver.findById(socket.modelId).then(driver => {
+                let nowMoment = moment().startOf('day');
+                DailyReport.findOne({
+                    dayDate: nowMoment.toDate(),
+                    driver: driver._id,
+                    period: driver.currentPeriod
+                }).then(report => {
+                    report.noOfCancelledTrips += 1;
+                    report.save();
+                })
+            });
         })
 
         socket.on("driver:active", data => {
@@ -398,6 +436,35 @@ module.exports = (io) => {
                 // if (redisClient.exists(tripLocationKey)) {
                 //     redisClient.del(tripLocationKey);
                 // }
+
+
+                let startTimeKey = "startTime:" + socket.phone ;
+
+                redisClient.get(startTimeKey, (error, startDate) => {
+
+                    let startMoment = moment(JSON.parse(startDate));
+
+                    let nowMoment = moment();
+
+                    let workingMin = nowMoment.diff(startMoment, 'minutes');
+
+                    redisClient.del(startTimeKey) ;
+
+
+                    Driver.findById(socket.modelId).then(driver => {
+                        let nowMoment = moment().startOf('day');
+                        DailyReport.findOne({
+                            dayDate: nowMoment.toDate(),
+                            driver: driver._id,
+                            period: driver.currentPeriod
+                        }).then(report => {
+                            report.workingMin += workingMin;
+                            report.save();
+                        })
+                    });
+                    
+                });
+
             }
         });
 
