@@ -139,7 +139,8 @@ module.exports = {
             let endDate = nowMoment.clone().add(14, 'days').toDate();
             let period = new Period({
                 startDate: nowDate,
-                endDate: endDate
+                endDate: endDate,
+                driver: id
             });
 
             period.save().then(period => {
