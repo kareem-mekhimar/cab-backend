@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const DailyReportSchema = mongoose.Schema({
     dayDate:{
-        type:Number,
+        type:Date,
     },
     driver: {
         type: Schema.Types.ObjectId,

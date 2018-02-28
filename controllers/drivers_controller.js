@@ -144,7 +144,7 @@ module.exports = {
 
                 for(var i = 1 ; i <= 14 ; i++){
                     let report = new DailyReport({
-                        dayDate: now.add(i, 'days').toDate().getTime() ,
+                        dayDate: now.add(i, 'days').toDate() ,
                         period: period._id,
                         driver: driver._id
                     });
