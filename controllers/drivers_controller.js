@@ -282,6 +282,83 @@ module.exports = {
         })
     },
 
+    findPeriod(req, res) {
+        let page = req.query.page;
+        let limit = req.query.limit;
+
+        page = page ? parseInt(page) : 1;
+        limit = limit ? limit : 30;
+
+        let id = req.params.id;
+
+        Driver.findById(id).then(driver => {
+
+            if (!driver) {
+                res.status(404).send({ success: false, error: "Driver not found" });
+                return;
+            }
+
+            let findQuery = Period.find({ driver: id });
+            findQuery.populate('driver');
+
+            let countQuery = Period.count({ driver: id });
+
+            findQuery.sort({ endDate: -1 })
+                .limit(parseInt(limit))
+                .skip((page - 1) * limit).then(results => {
+
+                    countQuery.then(count => {
+
+                        let pageCount = Math.ceil(count / limit);
+
+                        let response = new ApiResponse(results, page, pageCount, limit, count);
+                        response.addSelfLink(req);
+
+                        if (page > 1) {
+                            response.addPrevLink(req);
+                        }
+                        if (page < pageCount) {
+                            response.addNextLink(req);
+                        }
+
+                        res.send(response);
+                    }).catch(err => console.log(err))
+
+                }).catch(err => console.log(err));
+        }).catch(err => {
+            res.status(404).send({ success: false, error: "Driver not found" });
+        });
+    },
+
+    findReports(req, res) {
+        let page = req.query.page;
+        let limit = req.query.limit;
+
+        page = page ? parseInt(page) : 1;
+        limit = limit ? limit : 30;
+
+        let id = req.params.id;
+        let pid = req.params.pid;
+
+        Driver.findById(id).then(driver => {
+
+            if (!driver) {
+                res.status(404).send({ success: false, error: "Driver not found" });
+                return;
+            }
+
+            Period.findOne({ driver: id, _id: pid })
+                .then(period => {
+                    DailyReport.find({ period:pid,driver:id }).then(reports => {
+                      res.send(reports) ;
+                    });
+                });
+
+
+        }).catch(err => {
+            res.status(404).send({ success: false, error: "Driver not found" });
+        });
+    }
 }
 
 

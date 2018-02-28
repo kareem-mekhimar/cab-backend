@@ -43,8 +43,7 @@ module.exports = (io) => {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
                 if (!socket.inTrip)
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
-
-
+                    
                 redisClient.set("startTime:" + socket.phone, JSON.stringify(new Date()));
             }
             else {
@@ -445,13 +444,9 @@ module.exports = (io) => {
                 redisClient.get(startTimeKey, (error, startDate) => {
 
                     let startMoment = moment(JSON.parse(startDate));
-
                     let nowMoment = moment();
-
                     let workingMin = nowMoment.diff(startMoment, 'minutes');
-
                     redisClient.del(startTimeKey) ;
-
 
                     Driver.findOne({ phone: socket.phone }).then(driver => {
                         let nowMoment = moment().startOf('day');
