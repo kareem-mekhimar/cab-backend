@@ -81,9 +81,19 @@ module.exports = (io) => {
                         dayDate: nowMoment.toDate(),
                         driver: driver._id,
                         period: driver.currentPeriod
+
                     }).then(report => {
+                        
                         report.noOfTrips += 1
-                        report.save()
+                        report.save();
+
+
+                        Period.findById(driver.currentPeriod).then(p => {
+                             p.noOfTrips += 1 ;
+                             p.save() ;
+                        });
+
+
                     })
                 });
             });
@@ -396,6 +406,13 @@ module.exports = (io) => {
                 }).then(report => {
                     report.noOfCancelledTrips += 1;
                     report.save();
+
+
+                    Period.findById(driver.currentPeriod).then(p => {
+                        p.noOfCancelledTrips += 1 ;
+                        p.save() ;
+                   });
+
                 })
             });
         })
@@ -449,15 +466,25 @@ module.exports = (io) => {
                     redisClient.del(startTimeKey) ;
 
                     Driver.findOne({ phone: socket.phone }).then(driver => {
+                    
                         let nowMoment = moment().startOf('day');
                         DailyReport.findOne({
                             dayDate: nowMoment.toDate(),
                             driver: driver._id,
                             period: driver.currentPeriod
                         }).then(report => {
+                          
                             report.workingMin += workingMin;
                             report.save();
-                        })
+
+                            Period.findById(driver.currentPeriod).then(p => {
+                                p.workingMin += workingMin ;
+                                p.save() ;
+                            });
+
+                        });
+
+
                     });
                     
                 });
