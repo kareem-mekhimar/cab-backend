@@ -350,11 +350,6 @@ module.exports = (io) => {
                 Passenger.findById(passengerId).then(passenger => {
                     let wallet = passenger.wallet;
 
-                    passenger.wallet = data.newWallet;
-                    passenger.save();
-
-                    socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
-
                     if (data.newWallet > passenger.wallet) {
                         let value = data.newWallet - passenger.wallet;
 
@@ -366,6 +361,13 @@ module.exports = (io) => {
                             });
                         });
                     }
+                    
+                    passenger.wallet = data.newWallet;
+                    passenger.save();
+
+                    socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
+
+
                 });
             }
 

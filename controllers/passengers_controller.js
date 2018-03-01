@@ -188,7 +188,7 @@ module.exports = {
                             period: driver.currentPeriod
                         }).then(report => {
 
-                            report.rate += rate;
+                            report.rating += rate;
                             report.save();
 
                         });
