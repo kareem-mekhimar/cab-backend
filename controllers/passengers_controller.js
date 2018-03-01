@@ -179,7 +179,7 @@ module.exports = {
                     trip[0].save() ; 
 
 
-                    Driver.findOne({ phone: trip[0].driver }).then(driver => {
+                    Driver.findById(trip[0].driver).then(driver => {
 
                         let nowMoment = moment().startOf('day');
                         DailyReport.findOne({
