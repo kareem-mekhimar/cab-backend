@@ -44,6 +44,10 @@ const PeriodSchema = mongoose.Schema({
     finished:{
         type:Boolean,
         default:false
+    },
+    totalFare:{
+        type:Number,
+        default:0
     }
     
 });

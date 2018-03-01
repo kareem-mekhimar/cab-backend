@@ -43,7 +43,7 @@ module.exports = (io) => {
                 redisClient.hmset(phone, "type", "driver", "name", data.name, "id", data.id, "phone", data.phone);
                 if (!socket.inTrip)
                     redisClient.geoadd("drivers-free", data.location.longitude, data.location.latitude, phone);
-                    
+
                 redisClient.set("startTime:" + socket.phone, JSON.stringify(new Date()));
             }
             else {
@@ -83,14 +83,14 @@ module.exports = (io) => {
                         period: driver.currentPeriod
 
                     }).then(report => {
-                        
+
                         report.noOfTrips += 1
                         report.save();
 
 
                         Period.findById(driver.currentPeriod).then(p => {
-                             p.noOfTrips += 1 ;
-                             p.save() ;
+                            p.noOfTrips += 1;
+                            p.save();
                         });
 
 
@@ -274,6 +274,14 @@ module.exports = (io) => {
 
                             console.log("Fare = " + totalFare);
 
+                            Driver.findOne({ phone: socket.phone }).then(driver => {
+
+                                Period.findById(driver.currentPeriod).then(p => {
+                                    p.totalFare += totalFare;
+                                    p.save();
+                                });
+                            });
+
                             let totalKm = Math.round(tripKm);
                             let totalMin = Math.round(tripMin);
 
@@ -346,6 +354,18 @@ module.exports = (io) => {
                     passenger.save();
 
                     socket.broadcast.to(socket.room).emit("walletupdate", { wallet: passenger.wallet });
+
+                    if (data.newWallet > passenger.wallet) {
+                        let value = data.newWallet - passenger.wallet;
+
+                        Driver.findOne({ phone: socket.phone }).then(driver => {
+
+                            Period.findById(driver.currentPeriod).then(p => {
+                                p.walletTransfer += value;
+                                p.save();
+                            });
+                        });
+                    }
                 });
             }
 
@@ -409,9 +429,9 @@ module.exports = (io) => {
 
 
                     Period.findById(driver.currentPeriod).then(p => {
-                        p.noOfCancelledTrips += 1 ;
-                        p.save() ;
-                   });
+                        p.noOfCancelledTrips += 1;
+                        p.save();
+                    });
 
                 })
             });
@@ -456,37 +476,37 @@ module.exports = (io) => {
                 // }
 
 
-                let startTimeKey = "startTime:" + socket.phone ;
+                let startTimeKey = "startTime:" + socket.phone;
 
                 redisClient.get(startTimeKey, (error, startDate) => {
 
                     let startMoment = moment(JSON.parse(startDate));
                     let nowMoment = moment();
                     let workingMin = nowMoment.diff(startMoment, 'minutes');
-                    redisClient.del(startTimeKey) ;
+                    redisClient.del(startTimeKey);
 
                     Driver.findOne({ phone: socket.phone }).then(driver => {
-                    
+
                         let nowMoment = moment().startOf('day');
                         DailyReport.findOne({
                             dayDate: nowMoment.toDate(),
                             driver: driver._id,
                             period: driver.currentPeriod
                         }).then(report => {
-                          
+
                             report.workingMin += workingMin;
                             report.save();
 
                             Period.findById(driver.currentPeriod).then(p => {
-                                p.workingMin += workingMin ;
-                                p.save() ;
+                                p.workingMin += workingMin;
+                                p.save();
                             });
 
                         });
 
 
                     });
-                    
+
                 });
 
             }

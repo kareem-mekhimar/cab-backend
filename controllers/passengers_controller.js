@@ -1,7 +1,10 @@
 const Passenger = require("../models/passenger");
+const DailyReport = require("../models/daily_report") ;
+const Driver = require("../models/driver") ;
 const userController = require("./user_controller");
 const generatePassword = require('password-generator');
 const Trip = require("../models/trip") ;
+const moment = require("moment") ;
 
 const { calculateFare, getRealDistanceBetweenInMeters, getTimeInSecondsBetween, getRealDistanceAndTime } = require("../utils");
 
@@ -174,6 +177,24 @@ module.exports = {
 
                     trip[0].rate = rate ;
                     trip[0].save() ; 
+
+
+                    Driver.findOne({ phone: trip[0].driver }).then(driver => {
+
+                        let nowMoment = moment().startOf('day');
+                        DailyReport.findOne({
+                            dayDate: nowMoment.toDate(),
+                            driver: driver._id,
+                            period: driver.currentPeriod
+                        }).then(report => {
+
+                            report.rate += rate;
+                            report.save();
+
+                        });
+
+
+                    });
                 });
 
                 res.status(204).end() ;
