@@ -485,6 +485,7 @@ module.exports = (io) => {
                     let workingMin = nowMoment.diff(startMoment, 'minutes');
                     redisClient.del(startTimeKey);
 
+                    
                     Driver.findOne({ phone: socket.phone }).then(driver => {
 
                         let nowMoment = moment().startOf('day');
@@ -499,8 +500,8 @@ module.exports = (io) => {
 
                             Period.findById(driver.currentPeriod).then(p => {
                                 
-                                console.log(period) ;
-                                
+                                console.log(p) ;
+
                                 p.workingMin += workingMin;
                                 p.save();
                             });
