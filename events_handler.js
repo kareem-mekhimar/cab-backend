@@ -498,6 +498,9 @@ module.exports = (io) => {
                             report.save();
 
                             Period.findById(driver.currentPeriod).then(p => {
+                                
+                                console.log(period) ;
+                                
                                 p.workingMin += workingMin;
                                 p.save();
                             });
